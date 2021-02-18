@@ -1,0 +1,18 @@
+This folder includes the runs that we did for IJK loop.
+Matrix32 - Matrix multiplication for 32 x 32 matrix size
+Matrix512 - Matrix multiplication for 512 x 512 matrix size
+Matrix4096 - Matrix multiplication for 4096 x 4096 matrix size
+Matrix8192 - Matrix multiplication for 8192 x 8192 matrix size
+
+Each folder has a script called data.py
+
+How to run the script:
+python data.py
+
+This script will generate 3 files
+
+1) output: contains the averge result for all perf events
+2) result: Contains the value of our L1,L2 and L3 misses.
+3) cycles: contails the number of cycles the code executed.
+
+The script cycles.py will generate program execution time for all matrix multiplications.
