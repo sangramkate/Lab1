@@ -1,0 +1,189 @@
+# started on Sun Feb  7 12:19:11 2021
+
+5527,,l2_rqsts.all_pf:u,954298,100.00,,,,
+2492,,l2_rqsts.pf_miss:u,954298,100.00,,,,
+5053,,l2_rqsts.all_demand_miss:u,954298,100.00,,,,
+14187,,l2_rqsts.all_demand_references:u,954298,100.00,,,,
+<not counted>,,l2_rqsts.references:u,0,0.00,,,,
+# started on Sun Feb  7 12:19:12 2021
+
+906,,l2_rqsts.all_pf:u,352567,35.86,,,,
+2516,,l2_rqsts.pf_miss:u,983109,100.00,,,,
+5252,,l2_rqsts.all_demand_miss:u,983109,100.00,,,,
+14245,,l2_rqsts.all_demand_references:u,983109,100.00,,,,
+27086,,l2_rqsts.references:u,630542,64.14,,,,
+# started on Sun Feb  7 12:19:14 2021
+
+6632,,l2_rqsts.all_pf:u,738820,72.64,,,,
+2505,,l2_rqsts.pf_miss:u,1017135,100.00,,,,
+5258,,l2_rqsts.all_demand_miss:u,1017135,100.00,,,,
+14309,,l2_rqsts.all_demand_references:u,1017135,100.00,,,,
+16822,,l2_rqsts.references:u,278315,27.36,,,,
+# started on Sun Feb  7 12:19:15 2021
+
+6234,,l2_rqsts.all_pf:u,847565,86.39,,,,
+2592,,l2_rqsts.pf_miss:u,981085,100.00,,,,
+5160,,l2_rqsts.all_demand_miss:u,981085,100.00,,,,
+14455,,l2_rqsts.all_demand_references:u,981085,100.00,,,,
+4960,,l2_rqsts.references:u,133520,13.61,,,,
+# started on Sun Feb  7 12:19:17 2021
+
+5527,,l2_rqsts.all_pf:u,918191,100.00,,,,
+2473,,l2_rqsts.pf_miss:u,918191,100.00,,,,
+5095,,l2_rqsts.all_demand_miss:u,918191,100.00,,,,
+14555,,l2_rqsts.all_demand_references:u,918191,100.00,,,,
+<not counted>,,l2_rqsts.references:u,0,0.00,,,,
+# started on Sun Feb  7 12:19:19 2021
+
+1054,,l2_rqsts.all_pf:u,335102,29.51,,,,
+2608,,l2_rqsts.pf_miss:u,1135434,100.00,,,,
+5183,,l2_rqsts.all_demand_miss:u,1135434,100.00,,,,
+14239,,l2_rqsts.all_demand_references:u,1135434,100.00,,,,
+24891,,l2_rqsts.references:u,800332,70.49,,,,
+# started on Sun Feb  7 12:19:20 2021
+
+2556,,l2_rqsts.all_pf:u,506312,48.48,,,,
+2584,,l2_rqsts.pf_miss:u,1000177,95.76,,,,
+5351,,l2_rqsts.all_demand_miss:u,1044416,100.00,,,,
+14547,,l2_rqsts.all_demand_references:u,1044416,100.00,,,,
+26667,,l2_rqsts.references:u,582343,55.76,,,,
+# started on Sun Feb  7 12:19:22 2021
+
+1353,,l2_rqsts.all_pf:u,201069,21.73,,,,
+2401,,l2_rqsts.pf_miss:u,925330,100.00,,,,
+5019,,l2_rqsts.all_demand_miss:u,925330,100.00,,,,
+14467,,l2_rqsts.all_demand_references:u,925330,100.00,,,,
+22426,,l2_rqsts.references:u,724261,78.27,,,,
+# started on Sun Feb  7 12:19:23 2021
+
+5449,,l2_rqsts.all_pf:u,931792,95.76,,,,
+2476,,l2_rqsts.pf_miss:u,973054,100.00,,,,
+5078,,l2_rqsts.all_demand_miss:u,973054,100.00,,,,
+14061,,l2_rqsts.all_demand_references:u,973054,100.00,,,,
+0,,l2_rqsts.references:u,41262,4.24,,,,
+# started on Sun Feb  7 12:21:33 2021
+
+6788,,l2_rqsts.all_pf:u,711046,74.69,,,,
+2534,,l2_rqsts.pf_miss:u,951994,100.00,,,,
+5137,,l2_rqsts.all_demand_miss:u,951994,100.00,,,,
+14465,,l2_rqsts.all_demand_references:u,951994,100.00,,,,
+9676,,l2_rqsts.references:u,240948,25.31,,,,
+# started on Sun Feb  7 12:21:35 2021
+
+6170,,l2_rqsts.all_pf:u,838929,84.34,,,,
+2515,,l2_rqsts.pf_miss:u,994641,100.00,,,,
+5319,,l2_rqsts.all_demand_miss:u,994641,100.00,,,,
+14386,,l2_rqsts.all_demand_references:u,994641,100.00,,,,
+5340,,l2_rqsts.references:u,155712,15.66,,,,
+# started on Sun Feb  7 12:21:36 2021
+
+1019,,l2_rqsts.all_pf:u,318788,29.36,,,,
+2602,,l2_rqsts.pf_miss:u,1085938,100.00,,,,
+5046,,l2_rqsts.all_demand_miss:u,1085938,100.00,,,,
+13803,,l2_rqsts.all_demand_references:u,1085938,100.00,,,,
+24512,,l2_rqsts.references:u,767150,70.64,,,,
+# started on Sun Feb  7 12:21:38 2021
+
+0,,l2_rqsts.all_pf:u,36758,3.82,,,,
+2500,,l2_rqsts.pf_miss:u,962937,100.00,,,,
+5024,,l2_rqsts.all_demand_miss:u,962937,100.00,,,,
+14257,,l2_rqsts.all_demand_references:u,962937,100.00,,,,
+20666,,l2_rqsts.references:u,926179,96.18,,,,
+# started on Sun Feb  7 12:21:40 2021
+
+0,,l2_rqsts.all_pf:u,84004,8.38,,,,
+2514,,l2_rqsts.pf_miss:u,1002956,100.00,,,,
+5187,,l2_rqsts.all_demand_miss:u,1002956,100.00,,,,
+14222,,l2_rqsts.all_demand_references:u,1002956,100.00,,,,
+21569,,l2_rqsts.references:u,918952,91.62,,,,
+# started on Sun Feb  7 12:21:41 2021
+
+4407,,l2_rqsts.all_pf:u,591145,57.98,,,,
+2568,,l2_rqsts.pf_miss:u,1019581,100.00,,,,
+5127,,l2_rqsts.all_demand_miss:u,1019581,100.00,,,,
+14345,,l2_rqsts.all_demand_references:u,1019581,100.00,,,,
+26930,,l2_rqsts.references:u,428436,42.02,,,,
+# started on Sun Feb  7 12:21:43 2021
+
+1580,,l2_rqsts.all_pf:u,228296,20.76,,,,
+2596,,l2_rqsts.pf_miss:u,1099873,100.00,,,,
+5142,,l2_rqsts.all_demand_miss:u,1099873,100.00,,,,
+14308,,l2_rqsts.all_demand_references:u,1099873,100.00,,,,
+22281,,l2_rqsts.references:u,871577,79.24,,,,
+# started on Sun Feb  7 12:21:44 2021
+
+6647,,l2_rqsts.all_pf:u,722915,74.68,,,,
+2473,,l2_rqsts.pf_miss:u,968018,100.00,,,,
+5049,,l2_rqsts.all_demand_miss:u,968018,100.00,,,,
+14073,,l2_rqsts.all_demand_references:u,968018,100.00,,,,
+11272,,l2_rqsts.references:u,245103,25.32,,,,
+# started on Sun Feb  7 12:21:46 2021
+
+0,,l2_rqsts.all_pf:u,68937,7.17,,,,
+2527,,l2_rqsts.pf_miss:u,961734,100.00,,,,
+5217,,l2_rqsts.all_demand_miss:u,961734,100.00,,,,
+14169,,l2_rqsts.all_demand_references:u,961734,100.00,,,,
+21113,,l2_rqsts.references:u,892797,92.83,,,,
+# started on Sun Feb  7 13:02:09 2021
+
+5647,,l2_rqsts.all_pf:u,906532,100.00,,,,
+2485,,l2_rqsts.pf_miss:u,906532,100.00,,,,
+5084,,l2_rqsts.all_demand_miss:u,906532,100.00,,,,
+14369,,l2_rqsts.all_demand_references:u,906532,100.00,,,,
+<not counted>,,l2_rqsts.references:u,0,0.00,,,,
+# started on Sun Feb  7 13:02:11 2021
+
+6084,,l2_rqsts.all_pf:u,931717,91.49,,,,
+2514,,l2_rqsts.pf_miss:u,1018371,100.00,,,,
+5212,,l2_rqsts.all_demand_miss:u,1018371,100.00,,,,
+14121,,l2_rqsts.all_demand_references:u,1018371,100.00,,,,
+0,,l2_rqsts.references:u,86654,8.51,,,,
+# started on Sun Feb  7 13:02:13 2021
+
+3379,,l2_rqsts.all_pf:u,569027,50.28,,,,
+2670,,l2_rqsts.pf_miss:u,1131666,100.00,,,,
+5354,,l2_rqsts.all_demand_miss:u,1131666,100.00,,,,
+14399,,l2_rqsts.all_demand_references:u,1131666,100.00,,,,
+29060,,l2_rqsts.references:u,562639,49.72,,,,
+# started on Sun Feb  7 13:02:14 2021
+
+7381,,l2_rqsts.all_pf:u,633224,65.56,,,,
+2570,,l2_rqsts.pf_miss:u,965833,100.00,,,,
+5369,,l2_rqsts.all_demand_miss:u,965833,100.00,,,,
+14783,,l2_rqsts.all_demand_references:u,965833,100.00,,,,
+20449,,l2_rqsts.references:u,332609,34.44,,,,
+# started on Sun Feb  7 13:02:16 2021
+
+1366,,l2_rqsts.all_pf:u,227311,23.93,,,,
+2646,,l2_rqsts.pf_miss:u,949882,100.00,,,,
+5020,,l2_rqsts.all_demand_miss:u,949882,100.00,,,,
+14315,,l2_rqsts.all_demand_references:u,949882,100.00,,,,
+23327,,l2_rqsts.references:u,722571,76.07,,,,
+# started on Sun Feb  7 13:02:17 2021
+
+5735,,l2_rqsts.all_pf:u,945233,100.00,,,,
+2605,,l2_rqsts.pf_miss:u,945233,100.00,,,,
+5070,,l2_rqsts.all_demand_miss:u,945233,100.00,,,,
+14223,,l2_rqsts.all_demand_references:u,945233,100.00,,,,
+<not counted>,,l2_rqsts.references:u,0,0.00,,,,
+# started on Sun Feb  7 13:02:19 2021
+
+0,,l2_rqsts.all_pf:u,86051,8.23,,,,
+2543,,l2_rqsts.pf_miss:u,981831,93.93,,,,
+5154,,l2_rqsts.all_demand_miss:u,1045286,100.00,,,,
+14218,,l2_rqsts.all_demand_references:u,1045286,100.00,,,,
+20080,,l2_rqsts.references:u,1022690,97.84,,,,
+# started on Sun Feb  7 13:02:20 2021
+
+796,,l2_rqsts.all_pf:u,342987,34.94,,,,
+2571,,l2_rqsts.pf_miss:u,981614,100.00,,,,
+5121,,l2_rqsts.all_demand_miss:u,981614,100.00,,,,
+13909,,l2_rqsts.all_demand_references:u,981614,100.00,,,,
+26328,,l2_rqsts.references:u,638627,65.06,,,,
+# started on Sun Feb  7 13:02:22 2021
+
+7472,,l2_rqsts.all_pf:u,668815,67.46,,,,
+2601,,l2_rqsts.pf_miss:u,991355,100.00,,,,
+5458,,l2_rqsts.all_demand_miss:u,991355,100.00,,,,
+14549,,l2_rqsts.all_demand_references:u,991355,100.00,,,,
+18863,,l2_rqsts.references:u,322540,32.54,,,,

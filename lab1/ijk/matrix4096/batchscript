@@ -1,0 +1,17 @@
+#!/bin/bash
+
+#SBATCH -J mm4096                # Job name
+#SBATCH -o mm4096.out%j            # Name of stdout output file
+#SBATCH -e mm4096.err%j            # Name of stderr error file
+#SBATCH -p skx-normal                  # Queue (partition) name
+#SBATCH -N 1                    # Total # of nodes (must be 1 for serial)
+#SBATCH -n 1                    # Total # of mpi tasks (should be 1 for serial)
+#SBATCH -t 30:00              # Run time (hh:mm:ss)
+
+#SBATCH --mail-type=all
+#SBATCH --mail-user=sangram.kate@utexas.edu
+
+python run_perf3.py &
+
+wait
+

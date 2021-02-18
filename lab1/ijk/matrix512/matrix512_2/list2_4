@@ -1,0 +1,189 @@
+# started on Sun Feb  7 12:35:46 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,361283380,79.92,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,361256012,79.92,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,361772914,80.03,,,,
+10,,fp_arith_inst_retired.scalar_double:u,362253566,80.14,,,,
+268540636,,fp_arith_inst_retired.scalar_single:u,361587276,79.99,,,,
+# started on Sun Feb  7 12:35:50 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,366044997,79.95,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,366037434,79.95,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,366028155,79.95,,,,
+10,,fp_arith_inst_retired.scalar_double:u,367053367,80.17,,,,
+268648897,,fp_arith_inst_retired.scalar_single:u,366161003,79.98,,,,
+# started on Sun Feb  7 12:35:54 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,347872136,79.85,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,348567753,80.01,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,348826126,80.07,,,,
+10,,fp_arith_inst_retired.scalar_double:u,348845616,80.08,,,,
+268467879,,fp_arith_inst_retired.scalar_single:u,348417993,79.98,,,,
+# started on Sun Feb  7 12:35:58 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,366442498,79.97,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,366437684,79.97,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,366423443,79.97,,,,
+6,,fp_arith_inst_retired.scalar_double:u,366899296,80.07,,,,
+268561966,,fp_arith_inst_retired.scalar_single:u,366676703,80.02,,,,
+# started on Sun Feb  7 12:36:02 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,341967581,79.94,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,341948761,79.94,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,341959818,79.94,,,,
+10,,fp_arith_inst_retired.scalar_double:u,342670588,80.11,,,,
+268371309,,fp_arith_inst_retired.scalar_single:u,342476412,80.06,,,,
+# started on Sun Feb  7 12:36:06 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,357751795,79.94,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,357745449,79.94,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,357755783,79.94,,,,
+10,,fp_arith_inst_retired.scalar_double:u,358614313,80.13,,,,
+268317562,,fp_arith_inst_retired.scalar_single:u,358284592,80.06,,,,
+# started on Sun Feb  7 12:36:11 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,331578837,80.02,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,331564268,80.02,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,331572983,80.02,,,,
+10,,fp_arith_inst_retired.scalar_double:u,331565654,80.02,,,,
+268794611,,fp_arith_inst_retired.scalar_single:u,331217838,79.93,,,,
+# started on Sun Feb  7 12:36:15 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,366412387,79.97,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,366409509,79.97,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,366405577,79.97,,,,
+6,,fp_arith_inst_retired.scalar_double:u,366456420,79.98,,,,
+268269142,,fp_arith_inst_retired.scalar_single:u,367071859,80.11,,,,
+# started on Sun Feb  7 12:36:19 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,332817302,79.89,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,332819542,79.89,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,333688274,80.10,,,,
+10,,fp_arith_inst_retired.scalar_double:u,333808289,80.12,,,,
+268338052,,fp_arith_inst_retired.scalar_single:u,333323409,80.01,,,,
+# started on Sun Feb  7 12:37:09 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,386115127,79.96,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,386116574,79.96,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,386111065,79.96,,,,
+6,,fp_arith_inst_retired.scalar_double:u,386555562,80.05,,,,
+268356661,,fp_arith_inst_retired.scalar_single:u,386643360,80.07,,,,
+# started on Sun Feb  7 12:37:12 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,339942121,79.94,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,340430984,80.06,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,340445429,80.06,,,,
+10,,fp_arith_inst_retired.scalar_double:u,340448876,80.06,,,,
+268722626,,fp_arith_inst_retired.scalar_single:u,339703162,79.88,,,,
+# started on Sun Feb  7 12:37:16 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,380050521,79.88,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,380599020,79.99,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,381025647,80.08,,,,
+10,,fp_arith_inst_retired.scalar_double:u,381016891,80.08,,,,
+268319174,,fp_arith_inst_retired.scalar_single:u,380498161,79.97,,,,
+# started on Sun Feb  7 12:37:20 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,335641980,79.97,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,335935331,80.04,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,335933037,80.04,,,,
+10,,fp_arith_inst_retired.scalar_double:u,335919515,80.03,,,,
+268387416,,fp_arith_inst_retired.scalar_single:u,335494909,79.93,,,,
+# started on Sun Feb  7 12:37:24 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,387076236,80.00,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,387077137,80.00,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,387074381,80.00,,,,
+10,,fp_arith_inst_retired.scalar_double:u,387076387,80.00,,,,
+268348330,,fp_arith_inst_retired.scalar_single:u,387092259,80.00,,,,
+# started on Sun Feb  7 12:37:28 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,341505420,79.92,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,341490463,79.92,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,341877068,80.01,,,,
+10,,fp_arith_inst_retired.scalar_double:u,342483470,80.15,,,,
+268649589,,fp_arith_inst_retired.scalar_single:u,341786819,79.99,,,,
+# started on Sun Feb  7 12:37:32 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,364254907,79.87,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,364368648,79.90,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,365249270,80.09,,,,
+10,,fp_arith_inst_retired.scalar_double:u,365232447,80.09,,,,
+268185767,,fp_arith_inst_retired.scalar_single:u,365026852,80.04,,,,
+# started on Sun Feb  7 12:37:36 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,343851857,79.98,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,344134587,80.04,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,344141792,80.04,,,,
+10,,fp_arith_inst_retired.scalar_double:u,344131076,80.04,,,,
+268523314,,fp_arith_inst_retired.scalar_single:u,343488000,79.89,,,,
+# started on Sun Feb  7 12:37:40 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,383190474,79.84,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,384153910,80.04,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,384182202,80.05,,,,
+10,,fp_arith_inst_retired.scalar_double:u,384186940,80.05,,,,
+268169756,,fp_arith_inst_retired.scalar_single:u,384114726,80.03,,,,
+# started on Sun Feb  7 13:05:14 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,364631119,79.89,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,364636722,79.89,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,365258740,80.03,,,,
+10,,fp_arith_inst_retired.scalar_double:u,365642115,80.11,,,,
+268116196,,fp_arith_inst_retired.scalar_single:u,365510528,80.08,,,,
+# started on Sun Feb  7 13:05:18 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,344928240,79.90,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,344899692,79.89,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,345304047,79.99,,,,
+10,,fp_arith_inst_retired.scalar_double:u,345902766,80.13,,,,
+268202350,,fp_arith_inst_retired.scalar_single:u,345748947,80.09,,,,
+# started on Sun Feb  7 13:05:22 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,391582706,80.02,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,391574315,80.02,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,391576545,80.02,,,,
+10,,fp_arith_inst_retired.scalar_double:u,391569243,80.02,,,,
+268881749,,fp_arith_inst_retired.scalar_single:u,391078795,79.92,,,,
+# started on Sun Feb  7 13:05:26 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,344026290,80.01,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,344196610,80.05,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,344186793,80.04,,,,
+10,,fp_arith_inst_retired.scalar_double:u,344208016,80.05,,,,
+268860997,,fp_arith_inst_retired.scalar_single:u,343370587,79.85,,,,
+# started on Sun Feb  7 13:05:29 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,388049065,79.93,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,388718049,80.07,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,388707857,80.07,,,,
+10,,fp_arith_inst_retired.scalar_double:u,388704716,80.07,,,,
+268730046,,fp_arith_inst_retired.scalar_single:u,387736213,79.87,,,,
+# started on Sun Feb  7 13:05:33 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,340275486,79.86,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,340952633,80.02,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,341282748,80.10,,,,
+10,,fp_arith_inst_retired.scalar_double:u,341276869,80.10,,,,
+268580330,,fp_arith_inst_retired.scalar_single:u,340510188,79.92,,,,
+# started on Sun Feb  7 13:05:37 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,385781599,79.95,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,385774604,79.95,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,385763038,79.94,,,,
+6,,fp_arith_inst_retired.scalar_double:u,386303727,80.05,,,,
+268143928,,fp_arith_inst_retired.scalar_single:u,386568776,80.11,,,,
+# started on Sun Feb  7 13:05:41 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,333148807,79.90,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,333168836,79.90,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,333533627,79.99,,,,
+10,,fp_arith_inst_retired.scalar_double:u,334168993,80.14,,,,
+268248720,,fp_arith_inst_retired.scalar_single:u,333833425,80.06,,,,
+# started on Sun Feb  7 13:05:45 2021
+
+0,,fp_arith_inst_retired.256b_packed_single:u,388677982,79.90,,,,
+0,,fp_arith_inst_retired.512b_packed_double:u,388678128,79.90,,,,
+0,,fp_arith_inst_retired.512b_packed_single:u,389475730,80.07,,,,
+10,,fp_arith_inst_retired.scalar_double:u,389681092,80.11,,,,
+268343083,,fp_arith_inst_retired.scalar_single:u,389283496,80.03,,,,

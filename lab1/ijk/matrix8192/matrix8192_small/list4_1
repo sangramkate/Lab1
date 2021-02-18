@@ -1,0 +1,28 @@
+# started on Sun Feb  7 12:21:57 2021
+
+1783546079,,LLC-load-misses,1826900174078,60.00,3.45,of all LL-cache hits
+51667572597,,LLC-loads,1826901536109,60.00,,,,
+2201156,,LLC-store-misses,1217934818768,40.00,,,,
+7402736,,LLC-stores,1217933456737,40.00,,,,
+627916433504,,l2_rqsts.all_demand_data_rd:u,1826897810957,60.00,,,,
+# started on Sun Feb  7 12:50:15 2021
+
+1808581260,,LLC-load-misses,2184275268929,60.00,3.55,of all LL-cache hits
+50920420829,,LLC-loads,2184278212001,60.00,,,,
+1818827,,LLC-store-misses,1456176903599,40.00,,,,
+7316485,,LLC-stores,1456173960527,40.00,,,,
+628425538362,,l2_rqsts.all_demand_data_rd:u,2184263503502,60.00,,,,
+# started on Sun Feb  7 15:31:53 2021
+
+1764718523,,LLC-load-misses,1848611192740,60.00,3.49,of all LL-cache hits
+50550882004,,LLC-loads,1848601332034,60.00,,,,
+2094436,,LLC-store-misses,1232419135020,40.00,,,,
+10106959,,LLC-stores,1232428995726,40.00,,,,
+626764183850,,l2_rqsts.all_demand_data_rd:u,1848619811767,60.00,,,,
+# started on Mon Feb  8 11:18:21 2021
+
+1915110698,,LLC-load-misses,2166792593811,60.00,3.66,of all LL-cache hits
+52380765488,,LLC-loads,2166791292976,60.00,,,,
+2391875,,LLC-store-misses,1444533314636,40.00,,,,
+10122198,,LLC-stores,1444534615471,40.00,,,,
+629883102875,,l2_rqsts.all_demand_data_rd:u,2166797005391,60.00,,,,

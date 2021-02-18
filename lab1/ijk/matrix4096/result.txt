@@ -1,0 +1,4 @@
+execution time:552.51319669
+L1 miss rate:0.0967512571688
+L2 miss rate:0.0273050823858
+L3 miss rate:0.0133253736812

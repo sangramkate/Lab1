@@ -1,0 +1,189 @@
+# started on Sun Feb  7 12:35:43 2021
+
+22038,,LLC-load-misses,255225651,59.95,0.58,of all LL-cache hits
+3807403,,LLC-loads,256116257,60.16,,,,
+130,,LLC-store-misses,170497246,40.05,,,,
+17535,,LLC-stores,169606640,39.84,,,,
+122900215,,l2_rqsts.all_demand_data_rd:u,254400613,59.76,,,,
+# started on Sun Feb  7 12:35:47 2021
+
+113,,LLC-load-misses,263402970,60.00,0.00,of all LL-cache hits
+3961800,,LLC-loads,263407579,60.00,,,,
+45,,LLC-store-misses,175594479,40.00,,,,
+17248,,LLC-stores,175589870,40.00,,,,
+123559520,,l2_rqsts.all_demand_data_rd:u,263376856,60.00,,,,
+# started on Sun Feb  7 12:35:51 2021
+
+784,,LLC-load-misses,272525263,59.85,0.02,of all LL-cache hits
+3671326,,LLC-loads,273538730,60.08,,,,
+92,,LLC-store-misses,182803286,40.15,,,,
+17773,,LLC-stores,181789819,39.92,,,,
+123668926,,l2_rqsts.all_demand_data_rd:u,272573203,59.86,,,,
+# started on Sun Feb  7 12:35:55 2021
+
+642,,LLC-load-misses,254855570,59.81,0.02,of all LL-cache hits
+3143887,,LLC-loads,255855396,60.04,,,,
+137,,LLC-store-misses,171258800,40.19,,,,
+16841,,LLC-stores,170258974,39.96,,,,
+124166696,,l2_rqsts.all_demand_data_rd:u,255071995,59.86,,,,
+# started on Sun Feb  7 12:36:00 2021
+
+10742,,LLC-load-misses,272962313,60.05,0.32,of all LL-cache hits
+3370503,,LLC-loads,272975510,60.06,,,,
+123,,LLC-store-misses,181579840,39.95,,,,
+17229,,LLC-stores,181566643,39.94,,,,
+123488626,,l2_rqsts.all_demand_data_rd:u,272356752,59.92,,,,
+# started on Sun Feb  7 12:36:04 2021
+
+1563,,LLC-load-misses,260609236,60.02,0.04,of all LL-cache hits
+3635592,,LLC-loads,260609086,60.02,,,,
+105,,LLC-store-misses,173589004,39.98,,,,
+17502,,LLC-stores,173589154,39.98,,,,
+123820656,,l2_rqsts.all_demand_data_rd:u,260388322,59.97,,,,
+# started on Sun Feb  7 12:36:08 2021
+
+1971,,LLC-load-misses,288124304,59.82,0.06,of all LL-cache hits
+3332955,,LLC-loads,288916497,59.99,,,,
+47,,LLC-store-misses,193502634,40.18,,,,
+16800,,LLC-stores,192710441,40.01,,,,
+123149300,,l2_rqsts.all_demand_data_rd:u,288488146,59.90,,,,
+# started on Sun Feb  7 12:36:13 2021
+
+582,,LLC-load-misses,261374701,59.82,0.02,of all LL-cache hits
+3584377,,LLC-loads,261691328,59.89,,,,
+40,,LLC-store-misses,175590220,40.18,,,,
+16781,,LLC-stores,175273593,40.11,,,,
+122985982,,l2_rqsts.all_demand_data_rd:u,262074089,59.98,,,,
+# started on Sun Feb  7 12:36:16 2021
+
+204,,LLC-load-misses,270660521,59.85,0.01,of all LL-cache hits
+3013719,,LLC-loads,271196013,59.97,,,,
+87,,LLC-store-misses,181534781,40.15,,,,
+17556,,LLC-stores,180999289,40.03,,,,
+123419243,,l2_rqsts.all_demand_data_rd:u,270785535,59.88,,,,
+# started on Sun Feb  7 12:37:06 2021
+
+1742,,LLC-load-misses,248543613,59.82,0.06,of all LL-cache hits
+2847834,,LLC-loads,249535371,60.06,,,,
+152,,LLC-store-misses,166924219,40.18,,,,
+17229,,LLC-stores,165932461,39.94,,,,
+123136696,,l2_rqsts.all_demand_data_rd:u,248725399,59.87,,,,
+# started on Sun Feb  7 12:37:10 2021
+
+1825,,LLC-load-misses,290168584,59.99,0.05,of all LL-cache hits
+3451333,,LLC-loads,290130386,59.98,,,,
+225,,LLC-store-misses,193509525,40.01,,,,
+17191,,LLC-stores,193547723,40.02,,,,
+123243523,,l2_rqsts.all_demand_data_rd:u,290245979,60.01,,,,
+# started on Sun Feb  7 12:37:14 2021
+
+2110,,LLC-load-misses,255200508,60.00,0.07,of all LL-cache hits
+2889939,,LLC-loads,255700207,60.12,,,,
+55,,LLC-store-misses,170104151,40.00,,,,
+17127,,LLC-stores,169604452,39.88,,,,
+123729476,,l2_rqsts.all_demand_data_rd:u,254404705,59.82,,,,
+# started on Sun Feb  7 12:37:18 2021
+
+280,,LLC-load-misses,273091220,60.03,0.01,of all LL-cache hits
+3563765,,LLC-loads,273318949,60.08,,,,
+25,,LLC-store-misses,181808756,39.97,,,,
+17609,,LLC-stores,181581027,39.92,,,,
+123384011,,l2_rqsts.all_demand_data_rd:u,272352769,59.87,,,,
+# started on Sun Feb  7 12:37:22 2021
+
+649,,LLC-load-misses,260730983,59.93,0.02,of all LL-cache hits
+3401508,,LLC-loads,261464490,60.10,,,,
+197,,LLC-store-misses,174326411,40.07,,,,
+16989,,LLC-stores,173592904,39.90,,,,
+124118747,,l2_rqsts.all_demand_data_rd:u,260391951,59.85,,,,
+# started on Sun Feb  7 12:37:26 2021
+
+518,,LLC-load-misses,272427658,60.01,0.02,of all LL-cache hits
+3094913,,LLC-loads,272427299,60.01,,,,
+65,,LLC-store-misses,181577406,39.99,,,,
+16880,,LLC-stores,181577765,39.99,,,,
+123383662,,l2_rqsts.all_demand_data_rd:u,272364093,59.99,,,,
+# started on Sun Feb  7 12:37:30 2021
+
+661,,LLC-load-misses,262043095,59.88,0.02,of all LL-cache hits
+3974780,,LLC-loads,262213362,59.92,,,,
+60,,LLC-store-misses,175592781,40.12,,,,
+16702,,LLC-stores,175422514,40.08,,,,
+122934171,,l2_rqsts.all_demand_data_rd:u,262217653,59.92,,,,
+# started on Sun Feb  7 12:37:34 2021
+
+142,,LLC-load-misses,288661001,59.86,0.00,of all LL-cache hits
+3191505,,LLC-loads,289143428,59.96,,,,
+125,,LLC-store-misses,193541122,40.14,,,,
+17636,,LLC-stores,193058695,40.04,,,,
+123951468,,l2_rqsts.all_demand_data_rd:u,288839647,59.90,,,,
+# started on Sun Feb  7 12:37:37 2021
+
+647,,LLC-load-misses,251826807,59.99,0.02,of all LL-cache hits
+3058806,,LLC-loads,252158224,60.07,,,,
+62,,LLC-store-misses,167943522,40.01,,,,
+16835,,LLC-stores,167612105,39.93,,,,
+123901879,,l2_rqsts.all_demand_data_rd:u,251410782,59.89,,,,
+# started on Sun Feb  7 13:05:12 2021
+
+54247,,LLC-load-misses,266357217,60.00,1.46,of all LL-cache hits
+3706895,,LLC-loads,266343576,60.00,,,,
+312,,LLC-store-misses,177583868,40.00,,,,
+16781,,LLC-stores,177597509,40.00,,,,
+123275072,,l2_rqsts.all_demand_data_rd:u,266373441,60.00,,,,
+# started on Sun Feb  7 13:05:15 2021
+
+7022,,LLC-load-misses,276267837,60.08,0.19,of all LL-cache hits
+3769077,,LLC-loads,276289146,60.08,,,,
+85,,LLC-store-misses,183574176,39.92,,,,
+16740,,LLC-stores,183552867,39.92,,,,
+123106096,,l2_rqsts.all_demand_data_rd:u,275338204,59.88,,,,
+# started on Sun Feb  7 13:05:19 2021
+
+3731,,LLC-load-misses,260518857,60.01,0.10,of all LL-cache hits
+3836605,,LLC-loads,260533927,60.01,,,,
+50,,LLC-store-misses,173603218,39.99,,,,
+17656,,LLC-stores,173588148,39.99,,,,
+122737289,,l2_rqsts.all_demand_data_rd:u,260389317,59.98,,,,
+# started on Sun Feb  7 13:05:23 2021
+
+10498,,LLC-load-misses,287799094,59.79,0.31,of all LL-cache hits
+3431591,,LLC-loads,288431487,59.92,,,,
+97,,LLC-store-misses,193549115,40.21,,,,
+16932,,LLC-stores,192916722,40.08,,,,
+123241928,,l2_rqsts.all_demand_data_rd:u,288695435,59.98,,,,
+# started on Sun Feb  7 13:05:27 2021
+
+2745,,LLC-load-misses,261084121,60.07,0.07,of all LL-cache hits
+3873833,,LLC-loads,261072424,60.06,,,,
+63,,LLC-store-misses,173583104,39.93,,,,
+17079,,LLC-stores,173594801,39.94,,,,
+123324219,,l2_rqsts.all_demand_data_rd:u,260392190,59.91,,,,
+# started on Sun Feb  7 13:05:31 2021
+
+1755,,LLC-load-misses,275362162,60.00,0.05,of all LL-cache hits
+3879501,,LLC-loads,275355295,60.00,,,,
+123,,LLC-store-misses,183572739,40.00,,,,
+17639,,LLC-stores,183579606,40.00,,,,
+122964944,,l2_rqsts.all_demand_data_rd:u,275358219,60.00,,,,
+# started on Sun Feb  7 13:05:35 2021
+
+2538,,LLC-load-misses,259692271,59.94,0.07,of all LL-cache hits
+3672699,,LLC-loads,259684579,59.93,,,,
+40,,LLC-store-misses,173589443,40.06,,,,
+17299,,LLC-stores,173597135,40.07,,,,
+122949546,,l2_rqsts.all_demand_data_rd:u,260391967,60.10,,,,
+# started on Sun Feb  7 13:05:39 2021
+
+20687,,LLC-load-misses,273003475,60.06,0.67,of all LL-cache hits
+3098244,,LLC-loads,273002021,60.06,,,,
+235,,LLC-store-misses,181569567,39.94,,,,
+17668,,LLC-stores,181571021,39.94,,,,
+123196966,,l2_rqsts.all_demand_data_rd:u,272363009,59.92,,,,
+# started on Sun Feb  7 13:05:42 2021
+
+10265,,LLC-load-misses,264293429,60.04,0.26,of all LL-cache hits
+3875751,,LLC-loads,264613412,60.11,,,,
+48,,LLC-store-misses,175917144,39.96,,,,
+16726,,LLC-stores,175597161,39.89,,,,
+123072510,,l2_rqsts.all_demand_data_rd:u,263388793,59.83,,,,

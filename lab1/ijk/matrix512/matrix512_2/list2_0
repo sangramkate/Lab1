@@ -1,0 +1,189 @@
+# started on Sun Feb  7 12:35:43 2021
+
+1544789655,,cpu-cycles:u,432523338,100.00,,,,
+145082380,,L1-dcache-load-misses,432523338,100.00,8.30,of all L1-dcache hits
+1747090416,,L1-dcache-loads,432523338,100.00,,,,
+269568334,,L1-dcache-stores,432523338,100.00,,,,
+14286,,L1-icache-load-misses,432523338,100.00,,,,
+# started on Sun Feb  7 12:35:46 2021
+
+1558203704,,cpu-cycles:u,424317405,100.00,,,,
+144784327,,L1-dcache-load-misses,424317405,100.00,8.29,of all L1-dcache hits
+1747090409,,L1-dcache-loads,424317405,100.00,,,,
+269568334,,L1-dcache-stores,424317405,100.00,,,,
+9251,,L1-icache-load-misses,424317405,100.00,,,,
+# started on Sun Feb  7 12:35:50 2021
+
+1561224299,,cpu-cycles:u,432611377,100.00,,,,
+144801970,,L1-dcache-load-misses,432611377,100.00,8.29,of all L1-dcache hits
+1747090422,,L1-dcache-loads,432611377,100.00,,,,
+269568341,,L1-dcache-stores,432611377,100.00,,,,
+9729,,L1-icache-load-misses,432611377,100.00,,,,
+# started on Sun Feb  7 12:35:55 2021
+
+1541420255,,cpu-cycles:u,458382533,100.00,,,,
+145522870,,L1-dcache-load-misses,458382533,100.00,8.33,of all L1-dcache hits
+1747089677,,L1-dcache-loads,458382533,100.00,,,,
+269568333,,L1-dcache-stores,458382533,100.00,,,,
+10050,,L1-icache-load-misses,458382533,100.00,,,,
+# started on Sun Feb  7 12:35:59 2021
+
+1554180228,,cpu-cycles:u,433321983,100.00,,,,
+144875700,,L1-dcache-load-misses,433321983,100.00,8.29,of all L1-dcache hits
+1747089873,,L1-dcache-loads,433321983,100.00,,,,
+269568334,,L1-dcache-stores,433321983,100.00,,,,
+10034,,L1-icache-load-misses,433321983,100.00,,,,
+# started on Sun Feb  7 12:36:03 2021
+
+1513623157,,cpu-cycles:u,476120678,100.00,,,,
+144761608,,L1-dcache-load-misses,476120678,100.00,8.29,of all L1-dcache hits
+1747090415,,L1-dcache-loads,476120678,100.00,,,,
+269568338,,L1-dcache-stores,476120678,100.00,,,,
+9744,,L1-icache-load-misses,476120678,100.00,,,,
+# started on Sun Feb  7 12:36:07 2021
+
+1506634858,,cpu-cycles:u,419043716,100.00,,,,
+145320248,,L1-dcache-load-misses,419043716,100.00,8.32,of all L1-dcache hits
+1747087812,,L1-dcache-loads,419043716,100.00,,,,
+269568339,,L1-dcache-stores,419043716,100.00,,,,
+10340,,L1-icache-load-misses,419043716,100.00,,,,
+# started on Sun Feb  7 12:36:12 2021
+
+1532788042,,cpu-cycles:u,475538183,100.00,,,,
+144790043,,L1-dcache-load-misses,475538183,100.00,8.29,of all L1-dcache hits
+1747090416,,L1-dcache-loads,475538183,100.00,,,,
+269568335,,L1-dcache-stores,475538183,100.00,,,,
+9920,,L1-icache-load-misses,475538183,100.00,,,,
+# started on Sun Feb  7 12:36:16 2021
+
+1532485320,,cpu-cycles:u,423178449,100.00,,,,
+144887551,,L1-dcache-load-misses,423178449,100.00,8.29,of all L1-dcache hits
+1747090423,,L1-dcache-loads,423178449,100.00,,,,
+269568341,,L1-dcache-stores,423178449,100.00,,,,
+9835,,L1-icache-load-misses,423178449,100.00,,,,
+# started on Sun Feb  7 12:37:06 2021
+
+1547596736,,cpu-cycles:u,422912725,100.00,,,,
+144907629,,L1-dcache-load-misses,422912725,100.00,8.29,of all L1-dcache hits
+1747088509,,L1-dcache-loads,422912725,100.00,,,,
+269568346,,L1-dcache-stores,422912725,100.00,,,,
+9944,,L1-icache-load-misses,422912725,100.00,,,,
+# started on Sun Feb  7 12:37:09 2021
+
+1516077178,,cpu-cycles:u,413062680,100.00,,,,
+145708814,,L1-dcache-load-misses,413062680,100.00,8.34,of all L1-dcache hits
+1747089382,,L1-dcache-loads,413062680,100.00,,,,
+269568339,,L1-dcache-stores,413062680,100.00,,,,
+9879,,L1-icache-load-misses,413062680,100.00,,,,
+# started on Sun Feb  7 12:37:13 2021
+
+1505578626,,cpu-cycles:u,473912145,100.00,,,,
+145066881,,L1-dcache-load-misses,473912145,100.00,8.30,of all L1-dcache hits
+1747090187,,L1-dcache-loads,473912145,100.00,,,,
+269568335,,L1-dcache-stores,473912145,100.00,,,,
+9661,,L1-icache-load-misses,473912145,100.00,,,,
+# started on Sun Feb  7 12:37:17 2021
+
+1503550654,,cpu-cycles:u,409863204,100.00,,,,
+144344323,,L1-dcache-load-misses,409863204,100.00,8.26,of all L1-dcache hits
+1747090125,,L1-dcache-loads,409863204,100.00,,,,
+269568335,,L1-dcache-stores,409863204,100.00,,,,
+9536,,L1-icache-load-misses,409863204,100.00,,,,
+# started on Sun Feb  7 12:37:21 2021
+
+1533637404,,cpu-cycles:u,455138915,100.00,,,,
+144787081,,L1-dcache-load-misses,455138915,100.00,8.29,of all L1-dcache hits
+1747089656,,L1-dcache-loads,455138915,100.00,,,,
+269568343,,L1-dcache-stores,455138915,100.00,,,,
+9561,,L1-icache-load-misses,455138915,100.00,,,,
+# started on Sun Feb  7 12:37:25 2021
+
+1545014007,,cpu-cycles:u,432102499,100.00,,,,
+144719426,,L1-dcache-load-misses,432102499,100.00,8.28,of all L1-dcache hits
+1747085931,,L1-dcache-loads,432102499,100.00,,,,
+269568334,,L1-dcache-stores,432102499,100.00,,,,
+10420,,L1-icache-load-misses,432102499,100.00,,,,
+# started on Sun Feb  7 12:37:29 2021
+
+1536710108,,cpu-cycles:u,478875595,100.00,,,,
+145407453,,L1-dcache-load-misses,478875595,100.00,8.32,of all L1-dcache hits
+1747090410,,L1-dcache-loads,478875595,100.00,,,,
+269568334,,L1-dcache-stores,478875595,100.00,,,,
+10359,,L1-icache-load-misses,478875595,100.00,,,,
+# started on Sun Feb  7 12:37:33 2021
+
+1551795482,,cpu-cycles:u,423076469,100.00,,,,
+145311862,,L1-dcache-load-misses,423076469,100.00,8.32,of all L1-dcache hits
+1747090415,,L1-dcache-loads,423076469,100.00,,,,
+269568335,,L1-dcache-stores,423076469,100.00,,,,
+9676,,L1-icache-load-misses,423076469,100.00,,,,
+# started on Sun Feb  7 12:37:37 2021
+
+1542541834,,cpu-cycles:u,457671323,100.00,,,,
+144794504,,L1-dcache-load-misses,457671323,100.00,8.29,of all L1-dcache hits
+1747086882,,L1-dcache-loads,457671323,100.00,,,,
+269568334,,L1-dcache-stores,457671323,100.00,,,,
+9702,,L1-icache-load-misses,457671323,100.00,,,,
+# started on Sun Feb  7 13:05:11 2021
+
+1532227806,,cpu-cycles:u,417970601,100.00,,,,
+144572000,,L1-dcache-load-misses,417970601,100.00,8.28,of all L1-dcache hits
+1747093637,,L1-dcache-loads,417970601,100.00,,,,
+269568744,,L1-dcache-stores,417970601,100.00,,,,
+10544,,L1-icache-load-misses,417970601,100.00,,,,
+# started on Sun Feb  7 13:05:15 2021
+
+1556199643,,cpu-cycles:u,435293766,100.00,,,,
+144533866,,L1-dcache-load-misses,435293766,100.00,8.27,of all L1-dcache hits
+1747091004,,L1-dcache-loads,435293766,100.00,,,,
+269568745,,L1-dcache-stores,435293766,100.00,,,,
+10668,,L1-icache-load-misses,435293766,100.00,,,,
+# started on Sun Feb  7 13:05:19 2021
+
+1530672396,,cpu-cycles:u,454294384,100.00,,,,
+144540646,,L1-dcache-load-misses,454294384,100.00,8.27,of all L1-dcache hits
+1747093632,,L1-dcache-loads,454294384,100.00,,,,
+269568743,,L1-dcache-stores,454294384,100.00,,,,
+9722,,L1-icache-load-misses,454294384,100.00,,,,
+# started on Sun Feb  7 13:05:22 2021
+
+1544615079,,cpu-cycles:u,421249951,100.00,,,,
+144588426,,L1-dcache-load-misses,421249951,100.00,8.28,of all L1-dcache hits
+1747093641,,L1-dcache-loads,421249951,100.00,,,,
+269568745,,L1-dcache-stores,421249951,100.00,,,,
+9407,,L1-icache-load-misses,421249951,100.00,,,,
+# started on Sun Feb  7 13:05:26 2021
+
+1535287071,,cpu-cycles:u,483348343,100.00,,,,
+144256874,,L1-dcache-load-misses,483348343,100.00,8.26,of all L1-dcache hits
+1747093647,,L1-dcache-loads,483348343,100.00,,,,
+269568746,,L1-dcache-stores,483348343,100.00,,,,
+9488,,L1-icache-load-misses,483348343,100.00,,,,
+# started on Sun Feb  7 13:05:30 2021
+
+1533556511,,cpu-cycles:u,418201419,100.00,,,,
+144659020,,L1-dcache-load-misses,418201419,100.00,8.28,of all L1-dcache hits
+1747093649,,L1-dcache-loads,418201419,100.00,,,,
+269568752,,L1-dcache-stores,418201419,100.00,,,,
+9439,,L1-icache-load-misses,418201419,100.00,,,,
+# started on Sun Feb  7 13:05:34 2021
+
+1508316101,,cpu-cycles:u,475200907,100.00,,,,
+144719745,,L1-dcache-load-misses,475200907,100.00,8.28,of all L1-dcache hits
+1747093248,,L1-dcache-loads,475200907,100.00,,,,
+269568744,,L1-dcache-stores,475200907,100.00,,,,
+9594,,L1-icache-load-misses,475200907,100.00,,,,
+# started on Sun Feb  7 13:05:38 2021
+
+1535833269,,cpu-cycles:u,419239527,100.00,,,,
+144135370,,L1-dcache-load-misses,419239527,100.00,8.25,of all L1-dcache hits
+1747093633,,L1-dcache-loads,419239527,100.00,,,,
+269568744,,L1-dcache-stores,419239527,100.00,,,,
+9852,,L1-icache-load-misses,419239527,100.00,,,,
+# started on Sun Feb  7 13:05:42 2021
+
+1547865863,,cpu-cycles:u,487623419,100.00,,,,
+144340851,,L1-dcache-load-misses,487623419,100.00,8.26,of all L1-dcache hits
+1747093634,,L1-dcache-loads,487623419,100.00,,,,
+269568744,,L1-dcache-stores,487623419,100.00,,,,
+9975,,L1-icache-load-misses,487623419,100.00,,,,

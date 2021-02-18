@@ -1,0 +1,7 @@
+# started on Mon Feb  8 13:09:36 2021
+
+1099515394498,,fp_arith_inst_retired.scalar_single:u,2440073207797,80.00,,,,
+40,,fp_arith_inst_retired.scalar_double:u,2440066444934,80.00,,,,
+0,,fp_arith_inst_retired.128b_packed_double:u,2440068754333,80.00,,,,
+0,,fp_arith_inst_retired.128b_packed_single:u,2440083765615,80.00,,,,
+0,,fp_arith_inst_retired.256b_packed_double:u,2440065240405,80.00,,,,

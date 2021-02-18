@@ -1,0 +1,133 @@
+# started on Sun Feb  7 13:52:08 2021
+
+10896358659,,l2_rqsts.all_pf:u,257560643358,80.00,,,,
+6106583,,l2_rqsts.pf_miss:u,257562040642,80.00,,,,
+1084631382,,l2_rqsts.all_demand_miss:u,257563614923,80.00,,,,
+53039191118,,l2_rqsts.all_demand_references:u,257564548610,80.00,,,,
+63938287833,,l2_rqsts.references:u,257559918207,80.00,,,,
+# started on Sun Feb  7 14:22:07 2021
+
+11237746351,,l2_rqsts.all_pf:u,278613469456,80.00,,,,
+6249690,,l2_rqsts.pf_miss:u,278601100170,80.00,,,,
+1085113041,,l2_rqsts.all_demand_miss:u,278600987454,80.00,,,,
+52896216885,,l2_rqsts.all_demand_references:u,278602464702,80.00,,,,
+64128276380,,l2_rqsts.references:u,278603167866,80.00,,,,
+# started on Sun Feb  7 14:52:09 2021
+
+10866350582,,l2_rqsts.all_pf:u,276147189999,80.00,,,,
+5972545,,l2_rqsts.pf_miss:u,276154762726,80.00,,,,
+1087017110,,l2_rqsts.all_demand_miss:u,276154628179,80.00,,,,
+53004467068,,l2_rqsts.all_demand_references:u,276147995198,80.00,,,,
+63872565304,,l2_rqsts.references:u,276148201754,80.00,,,,
+# started on Sun Feb  7 15:21:40 2021
+
+11480178095,,l2_rqsts.all_pf:u,269812495180,80.00,,,,
+6761378,,l2_rqsts.pf_miss:u,269812864451,80.00,,,,
+1090638398,,l2_rqsts.all_demand_miss:u,269812444423,80.00,,,,
+53118453841,,l2_rqsts.all_demand_references:u,269825857414,80.00,,,,
+64595392853,,l2_rqsts.references:u,269817440344,80.00,,,,
+# started on Sun Feb  7 15:56:05 2021
+
+11578039469,,l2_rqsts.all_pf:u,255739152167,80.00,,,,
+7043526,,l2_rqsts.pf_miss:u,255740858120,80.00,,,,
+1085899231,,l2_rqsts.all_demand_miss:u,255740520378,80.00,,,,
+53060550702,,l2_rqsts.all_demand_references:u,255739592272,80.00,,,,
+64638971877,,l2_rqsts.references:u,255740546367,80.00,,,,
+# started on Sun Feb  7 16:17:48 2021
+
+11660333787,,l2_rqsts.all_pf:u,255475740214,80.00,,,,
+7037341,,l2_rqsts.pf_miss:u,255474814850,80.00,,,,
+1082872614,,l2_rqsts.all_demand_miss:u,255475759452,80.00,,,,
+52987078395,,l2_rqsts.all_demand_references:u,255473635124,80.00,,,,
+64646489566,,l2_rqsts.references:u,255475640460,80.00,,,,
+# started on Sun Feb  7 16:24:09 2021
+
+11619702501,,l2_rqsts.all_pf:u,257839264427,80.00,,,,
+6185617,,l2_rqsts.pf_miss:u,257840479298,80.00,,,,
+1083935371,,l2_rqsts.all_demand_miss:u,257840034438,80.00,,,,
+52999375725,,l2_rqsts.all_demand_references:u,257839724373,80.00,,,,
+64619617203,,l2_rqsts.references:u,257838784192,80.00,,,,
+# started on Sun Feb  7 16:45:34 2021
+
+11574641272,,l2_rqsts.all_pf:u,255301781186,80.00,,,,
+6327090,,l2_rqsts.pf_miss:u,255301600026,80.00,,,,
+1079653864,,l2_rqsts.all_demand_miss:u,255301752745,80.00,,,,
+53061013800,,l2_rqsts.all_demand_references:u,255301811205,80.00,,,,
+64635407195,,l2_rqsts.references:u,255302636166,80.00,,,,
+# started on Sun Feb  7 18:38:45 2021
+
+11507138323,,l2_rqsts.all_pf:u,254632915219,80.00,,,,
+9366642,,l2_rqsts.pf_miss:u,254631795439,80.00,,,,
+1094892389,,l2_rqsts.all_demand_miss:u,254632335567,80.00,,,,
+53113791037,,l2_rqsts.all_demand_references:u,254633002809,80.00,,,,
+64619907817,,l2_rqsts.references:u,254632620106,80.00,,,,
+# started on Sun Feb  7 19:06:27 2021
+
+11026112463,,l2_rqsts.all_pf:u,256012697584,80.00,,,,
+5902048,,l2_rqsts.pf_miss:u,256014509748,80.00,,,,
+1083979444,,l2_rqsts.all_demand_miss:u,256014042565,80.00,,,,
+53065007296,,l2_rqsts.all_demand_references:u,256014299865,80.00,,,,
+64092071571,,l2_rqsts.references:u,256012441550,80.00,,,,
+# started on Sun Feb  7 19:33:30 2021
+
+11669924617,,l2_rqsts.all_pf:u,255373359480,80.00,,,,
+6470612,,l2_rqsts.pf_miss:u,255372830446,80.00,,,,
+1085465591,,l2_rqsts.all_demand_miss:u,255374975248,80.00,,,,
+53058668360,,l2_rqsts.all_demand_references:u,255374770760,80.00,,,,
+64728271354,,l2_rqsts.references:u,255374802010,80.00,,,,
+# started on Sun Feb  7 20:00:16 2021
+
+10900561315,,l2_rqsts.all_pf:u,256308537892,80.00,,,,
+7776282,,l2_rqsts.pf_miss:u,256308506314,80.00,,,,
+1094699995,,l2_rqsts.all_demand_miss:u,256306682416,80.00,,,,
+53042697547,,l2_rqsts.all_demand_references:u,256307311457,80.00,,,,
+63941566687,,l2_rqsts.references:u,256308190665,80.00,,,,
+# started on Sun Feb  7 20:27:53 2021
+
+10984899659,,l2_rqsts.all_pf:u,260247894892,80.00,,,,
+8381740,,l2_rqsts.pf_miss:u,260249344983,80.00,,,,
+1091446737,,l2_rqsts.all_demand_miss:u,260249940028,80.00,,,,
+53011125078,,l2_rqsts.all_demand_references:u,260249760773,80.00,,,,
+64000705973,,l2_rqsts.references:u,260249583272,80.00,,,,
+# started on Mon Feb  8 02:19:24 2021
+
+11056813048,,l2_rqsts.all_pf:u,256500882492,80.00,,,,
+6198591,,l2_rqsts.pf_miss:u,256500775876,80.00,,,,
+1084733839,,l2_rqsts.all_demand_miss:u,256501725037,80.00,,,,
+52999446899,,l2_rqsts.all_demand_references:u,256502205503,80.00,,,,
+64055320363,,l2_rqsts.references:u,256501421268,80.00,,,,
+# started on Mon Feb  8 02:47:03 2021
+
+11357959258,,l2_rqsts.all_pf:u,296533584154,80.00,,,,
+6024599,,l2_rqsts.pf_miss:u,296532174024,80.00,,,,
+1084985003,,l2_rqsts.all_demand_miss:u,296533003244,80.00,,,,
+53196460070,,l2_rqsts.all_demand_references:u,296532985854,80.00,,,,
+64553372778,,l2_rqsts.references:u,296532265172,80.00,,,,
+# started on Mon Feb  8 03:16:37 2021
+
+10984068090,,l2_rqsts.all_pf:u,255861670044,80.00,,,,
+6249909,,l2_rqsts.pf_miss:u,255860617713,80.00,,,,
+1083431919,,l2_rqsts.all_demand_miss:u,255861708328,80.00,,,,
+52929015663,,l2_rqsts.all_demand_references:u,255862208426,80.00,,,,
+63913027026,,l2_rqsts.references:u,255861225981,80.00,,,,
+# started on Mon Feb  8 03:45:09 2021
+
+10848302348,,l2_rqsts.all_pf:u,254901321698,80.00,,,,
+5742045,,l2_rqsts.pf_miss:u,254899178298,80.00,,,,
+1084873227,,l2_rqsts.all_demand_miss:u,254900366844,80.00,,,,
+53091124849,,l2_rqsts.all_demand_references:u,254900628039,80.00,,,,
+63937044636,,l2_rqsts.references:u,254899427757,80.00,,,,
+# started on Mon Feb  8 04:11:53 2021
+
+11473622716,,l2_rqsts.all_pf:u,294989652834,80.00,,,,
+6805893,,l2_rqsts.pf_miss:u,294990327319,80.00,,,,
+1089062303,,l2_rqsts.all_demand_miss:u,294990261871,80.00,,,,
+53128051766,,l2_rqsts.all_demand_references:u,294989213329,80.00,,,,
+64599562086,,l2_rqsts.references:u,294990698875,80.00,,,,
+# started on Mon Feb  8 10:41:45 2021
+
+11079805162,,l2_rqsts.all_pf:u,263128413998,80.00,,,,
+6486535,,l2_rqsts.pf_miss:u,263128775938,80.00,,,,
+1082917506,,l2_rqsts.all_demand_miss:u,263127231892,80.00,,,,
+53081393242,,l2_rqsts.all_demand_references:u,263129906919,80.00,,,,
+64160842985,,l2_rqsts.references:u,263128569877,80.00,,,,
