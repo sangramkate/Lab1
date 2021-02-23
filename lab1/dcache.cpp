@@ -153,7 +153,7 @@ VOID StoreMulti(ADDRINT addr, UINT32 size, UINT32 instId)
     {
     	const BOOL dl1Hit = dl1->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_STORE);
 	if(!dl1Hit) {
-		const BOOL l2Hit = l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_STORE);
+		const BOOL l2Hit = l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_LOAD);
 		if(dl1->isDirty(addr)) { // check if line we replaced was dirty  
 		    //ADDRINT wbAddr = dl1->getDirtyLine();   
 		    l2->WriteBackDirty();  // no need to update repl policy or count in miss 
@@ -198,7 +198,7 @@ VOID StoreSingle(ADDRINT addr, UINT32 instId)
     // first level D-cache
     const BOOL dl1Hit = dl1->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_STORE);
     if(!dl1Hit) {
-	const BOOL l2Hit = l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_STORE); 
+	const BOOL l2Hit = l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_LOAD); 
 	if(dl1->isDirty(addr)) { // check if line we replaced was dirty  
 	    //ADDRINT wbAddr = dl1->getDirtyLine();   
 	    l2->WriteBackDirty();  // no need to update repl policy or count in miss 
@@ -242,7 +242,7 @@ VOID StoreMultiFast(ADDRINT addr, UINT32 size)
     {
     	const BOOL dl1Hit = dl1->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_STORE);
 	if(!dl1Hit) {
-		l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_STORE); 
+		l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_LOAD); 
 		if(dl1->isDirty(addr)) { // check if line we replaced was dirty  
 		    //ADDRINT wbAddr = dl1->getDirtyLine();   
 		    l2->WriteBackDirty();  // no need to update repl policy or count in miss 
@@ -275,7 +275,7 @@ VOID StoreSingleFast(ADDRINT addr)
 {
     const BOOL dl1Hit = dl1->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_STORE);
     if(!dl1Hit) {
-	l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_STORE); 
+	l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_LOAD); 
 	if(dl1->isDirty(addr)) { // check if line we replaced was dirty  
 	    //ADDRINT wbAddr = dl1->getDirtyLine();   
 	    l2->WriteBackDirty();  // no need to update repl policy or count in miss 

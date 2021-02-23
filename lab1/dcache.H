@@ -186,6 +186,7 @@ class LRU
     CACHE_TAG _tags[MAX_ASSOCIATIVITY];
     UINT64 _repl[MAX_ASSOCIATIVITY];
     BOOL _dirty[MAX_ASSOCIATIVITY];
+    BOOL _valid[MAX_ASSOCIATIVITY];
     UINT32 _tagsLastIndex;
     UINT64 _timestamp;
     BOOL _isDirty;
@@ -203,6 +204,7 @@ class LRU
             _tags[index] = CACHE_TAG(0);
 	    _repl[index] = 0; //initially, it gets replaced in order
 	    _dirty[index] = 0; //everything clean initially
+	    _valid[index] = 0; //nothing valid initially : empty cache
         }
     }
 
@@ -224,7 +226,7 @@ class LRU
         {
             // this is an ugly micro-optimization, but it does cause a
             // tighter assembly loop for ARM that way ...
-            if(_tags[index] == tag) {
+            if((_tags[index] == tag) && _valid[index]) {
 		_repl[index] = _timestamp++ ; 
 		if(isStore) { _dirty[index] = 1; }
 		goto end;
@@ -246,6 +248,11 @@ class LRU
     		min_timestamp = _repl[index];
 		min_index = index;
 	    }
+	    if(_valid[index] == 0) {
+		//First remove invalid data
+		min_index = index;
+		break ; 
+	    }
         }
 
 	_isDirty = _dirty[min_index] ? 1 : 0;
@@ -253,6 +260,7 @@ class LRU
 
 	_tags[min_index] = tag; //replace LRU - the one touched least recently
 	_repl[min_index] = _timestamp++ ; 
+	_valid[min_index] = 1;
 	if(isStore) {
 	    _dirty[min_index] = 1;
 	} else { _dirty[min_index] = 0; }
