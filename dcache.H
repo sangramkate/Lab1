@@ -190,7 +190,8 @@ class LRU
     UINT32 _tagsLastIndex;
     UINT64 _timestamp;
     BOOL _isDirty;
-    //ADDRINT _wbAddr;
+    CACHE_TAG _wbAddr;
+
 
   public:
     LRU(UINT32 associativity = MAX_ASSOCIATIVITY)
@@ -216,7 +217,18 @@ class LRU
     UINT32 GetAssociativity(UINT32 associativity) { return _tagsLastIndex + 1; }
 
     BOOL isDirty() { return _isDirty; }
-    //ADDRINT getDirtyLine() { return _wbAddr; }
+
+    BOOL SetDirty(CACHE_TAG tag) {
+        for (INT32 index = _tagsLastIndex; index >= 0; index--)
+        {
+            if((_tags[index] == tag) && _valid[index]) {
+		_dirty[index] = 1;
+            }
+ 	}
+	return true;
+    }
+
+    CACHE_TAG getDirtyLine() { return _wbAddr; }
     
     UINT32 Find(CACHE_TAG tag, BOOL isStore)
     {
@@ -256,7 +268,7 @@ class LRU
         }
 
 	_isDirty = _dirty[min_index] ? 1 : 0;
-	//joinAddress(_wbAddr, _tags[min_index]) ; // need to WB to L2
+	_wbAddr = _tags[min_index]; //same tag will be used for L1 and L2
 
 	_tags[min_index] = tag; //replace LRU - the one touched least recently
 	_repl[min_index] = _timestamp++ ; 
@@ -291,6 +303,7 @@ class CACHE_BASE
     {
         ACCESS_TYPE_LOAD,
         ACCESS_TYPE_STORE,
+	ACCESS_TYPE_WB,
         ACCESS_TYPE_NUM
     } ACCESS_TYPE;
 
@@ -351,6 +364,11 @@ class CACHE_BASE
         tag = addr >> _lineShift;
         setIndex = tag & _setIndexMask;
     }
+    
+    VOID SplitAddress(CACHE_TAG tag, UINT32 & setIndex) const
+    {
+        setIndex = tag & _setIndexMask;
+    }
 
     VOID SplitAddress(const ADDRINT addr, CACHE_TAG & tag, UINT32 & setIndex, UINT32 & lineIndex) const
     {
@@ -399,7 +417,7 @@ string CACHE_BASE::StatsLong(string prefix, CACHE_TYPE cache_type) const
        {
            const ACCESS_TYPE accessType = ACCESS_TYPE(i);
 
-           std::string type(accessType == ACCESS_TYPE_LOAD ? "Load" : "Store");
+           std::string type(accessType == ACCESS_TYPE_LOAD ? "Load" : accessType == ACCESS_TYPE_STORE ? "Store" : "WB");
 
            out += prefix + ljstr(type + "-Hits:      ", headerWidth)
                   + mydecstr(Hits(accessType), numberWidth)  +
@@ -465,7 +483,9 @@ class CACHE : public CACHE_BASE
     /// Cache access at addr that does not span cache lines
     bool AccessSingleLine(ADDRINT addr, ACCESS_TYPE accessType);
     bool isDirty(ADDRINT addr);
-    bool WriteBackDirty(); 
+    CACHE_TAG getDirtyLine(ADDRINT addr);
+    bool WriteBackDirty(CACHE_TAG wbTag); 
+    bool WriteToMemory();
 
 };
 
@@ -553,17 +573,59 @@ bool CACHE<SET,MAX_SETS,STORE_ALLOCATION>::isDirty(ADDRINT addr)
 }
 
 /*!
+ *  @return TAG of last dirty line
+ */
+template <class SET, UINT32 MAX_SETS, UINT32 STORE_ALLOCATION>
+CACHE_TAG CACHE<SET,MAX_SETS,STORE_ALLOCATION>::getDirtyLine(ADDRINT addr)
+{
+    CACHE_TAG tag;
+    UINT32 setIndex;
+
+    //Used to get address of SET to query. This is the line which replaced the dirty line
+    SplitAddress(addr, tag, setIndex);
+
+    SET & set = _sets[setIndex];
+
+    CACHE_TAG wbAddr = set.getDirtyLine();
+
+    return wbAddr;
+}
+
+/*!
  *  @return none. Used to WB line from l1 to l2 
  */
 template <class SET, UINT32 MAX_SETS, UINT32 STORE_ALLOCATION>
-bool CACHE<SET,MAX_SETS,STORE_ALLOCATION>::WriteBackDirty()
+bool CACHE<SET,MAX_SETS,STORE_ALLOCATION>::WriteBackDirty(CACHE_TAG wbTag)
 {
+
+//Need to update Dirty bit though
+    UINT32 setIndex;
+
+    SplitAddress(wbTag, setIndex);
+
+    SET & set = _sets[setIndex];
+
+    set.SetDirty(wbTag);
 
 // Just count it in accesses that hit, nothing else. No need to update replacement policy
     bool hit = true;
     _access[ACCESS_TYPE_STORE][hit]++;
 
     return hit;
+}
+
+/*!
+ *  @return none. Used to WB line from l2 to memory
+ */
+template <class SET, UINT32 MAX_SETS, UINT32 STORE_ALLOCATION>
+bool CACHE<SET,MAX_SETS,STORE_ALLOCATION>::WriteToMemory()
+{
+
+// Just count it in accesses that miss in L2 
+    bool miss = false;
+    _access[ACCESS_TYPE_WB][miss]++;
+
+    return miss;
 }
 
 // define shortcuts

@@ -46,7 +46,7 @@ KNOB<UINT32> KnobThresholdMiss(KNOB_MODE_WRITEONCE, "pintool",
 KNOB<UINT32> KnobCacheSize(KNOB_MODE_WRITEONCE, "pintool",
     "c_l1","32", "cache size in kilobytes");
 KNOB<UINT32> KnobLineSize(KNOB_MODE_WRITEONCE, "pintool",
-    "b_l1","32", "cache block size in bytes");
+    "b_l1","64", "cache block size in bytes");
 KNOB<UINT32> KnobAssociativity(KNOB_MODE_WRITEONCE, "pintool",
     "a_l1","4", "cache associativity (1 for direct mapped)");
 KNOB<UINT32> KnobL2CacheSize(KNOB_MODE_WRITEONCE, "pintool",
@@ -127,8 +127,11 @@ VOID LoadMulti(ADDRINT addr, UINT32 size, UINT32 instId)
 	if(!dl1Hit) {
 		const BOOL l2Hit = l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_LOAD); //send a load request
 		if(dl1->isDirty(addr)) { // check if line we replaced was dirty  
-		    //ADDRINT wbAddr = dl1->getDirtyLine();   
-		    l2->WriteBackDirty();  // no need to update repl policy or count in miss 
+		    ADDRINT wbAddr = dl1->getDirtyLine(addr);   
+		    l2->WriteBackDirty(wbAddr);  // no need to update repl policy or count in miss 
+		}
+		if(!l2Hit && l2->isDirty(addr)) {
+		    l2->WriteToMemory();
 		}
 		const COUNTER counter_l2 = l2Hit ? COUNTER_L2_HIT : COUNTER_L2_MISS;	
 		profile[instId][counter_l2]++;
@@ -153,10 +156,13 @@ VOID StoreMulti(ADDRINT addr, UINT32 size, UINT32 instId)
     {
     	const BOOL dl1Hit = dl1->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_STORE);
 	if(!dl1Hit) {
-		const BOOL l2Hit = l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_LOAD);
+		const BOOL l2Hit = l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_LOAD); //send a load request
 		if(dl1->isDirty(addr)) { // check if line we replaced was dirty  
-		    //ADDRINT wbAddr = dl1->getDirtyLine();   
-		    l2->WriteBackDirty();  // no need to update repl policy or count in miss 
+		    ADDRINT wbAddr = dl1->getDirtyLine(addr);   
+		    l2->WriteBackDirty(wbAddr);  // no need to update repl policy or count in miss 
+		}
+		if(!l2Hit && l2->isDirty(addr)) {
+		    l2->WriteToMemory();
 		}
 		const COUNTER counter_l2 = l2Hit ? COUNTER_L2_HIT : COUNTER_L2_MISS;	
 		profile[instId][counter_l2]++;
@@ -180,8 +186,11 @@ VOID LoadSingle(ADDRINT addr, UINT32 instId)
     if(!dl1Hit) {
 	const BOOL l2Hit = l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_LOAD); //send a load request
 	if(dl1->isDirty(addr)) { // check if line we replaced was dirty  
-	    //ADDRINT wbAddr = dl1->getDirtyLine();   
-	    l2->WriteBackDirty();  // no need to update repl policy or count in miss 
+	    ADDRINT wbAddr = dl1->getDirtyLine(addr);   
+	    l2->WriteBackDirty(wbAddr);  // no need to update repl policy or count in miss 
+	}
+	if(!l2Hit && l2->isDirty(addr)) {
+	    l2->WriteToMemory();
 	}
 	const COUNTER counter_l2 = l2Hit ? COUNTER_L2_HIT : COUNTER_L2_MISS;	
 	profile[instId][counter_l2]++;
@@ -200,8 +209,11 @@ VOID StoreSingle(ADDRINT addr, UINT32 instId)
     if(!dl1Hit) {
 	const BOOL l2Hit = l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_LOAD); 
 	if(dl1->isDirty(addr)) { // check if line we replaced was dirty  
-	    //ADDRINT wbAddr = dl1->getDirtyLine();   
-	    l2->WriteBackDirty();  // no need to update repl policy or count in miss 
+	    ADDRINT wbAddr = dl1->getDirtyLine(addr);   
+	    l2->WriteBackDirty(wbAddr);  // no need to update repl policy or count in miss 
+	}
+	if(!l2Hit && l2->isDirty(addr)) {
+	    l2->WriteToMemory();
 	}
 	const COUNTER counter_l2 = l2Hit ? COUNTER_L2_HIT : COUNTER_L2_MISS;	
 	profile[instId][counter_l2]++;
@@ -220,10 +232,13 @@ VOID LoadMultiFast(ADDRINT addr, UINT32 size)
     {
     	const BOOL dl1Hit = dl1->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_LOAD);
 	if(!dl1Hit) {
-		l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_LOAD); //send a load request
+		const BOOL l2Hit = l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_LOAD); //send a load request
 		if(dl1->isDirty(addr)) { // check if line we replaced was dirty  
-		    //ADDRINT wbAddr = dl1->getDirtyLine();   
-		    l2->WriteBackDirty();  // no need to update repl policy or count in miss 
+		    CACHE_TAG wbAddr = dl1->getDirtyLine(addr);   
+		    l2->WriteBackDirty(wbAddr);  // no need to update repl policy or count in miss 
+		}
+		if(!l2Hit && l2->isDirty(addr)) {
+		    l2->WriteToMemory();
 		}
 	}
         addr = (addr & notLineMask) + lineSize; // start of next cache line
@@ -242,10 +257,14 @@ VOID StoreMultiFast(ADDRINT addr, UINT32 size)
     {
     	const BOOL dl1Hit = dl1->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_STORE);
 	if(!dl1Hit) {
-		l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_LOAD); 
+		const BOOL l2Hit = l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_LOAD); //send a load request
 		if(dl1->isDirty(addr)) { // check if line we replaced was dirty  
-		    //ADDRINT wbAddr = dl1->getDirtyLine();   
-		    l2->WriteBackDirty();  // no need to update repl policy or count in miss 
+		    CACHE_TAG wbAddr = dl1->getDirtyLine(addr);   
+		    l2->WriteBackDirty(wbAddr);  // no need to update repl policy or count in miss 
+		}
+
+		if(!l2Hit && l2->isDirty(addr)) {
+		    l2->WriteToMemory();
 		}
 	}
         addr = (addr & notLineMask) + lineSize; // start of next cache line
@@ -260,10 +279,13 @@ VOID LoadSingleFast(ADDRINT addr)
 {
     const BOOL dl1Hit = dl1->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_LOAD);
     if(!dl1Hit) {
-	l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_LOAD); //send a load request
+	const BOOL l2Hit = l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_LOAD); //send a load request
 	if(dl1->isDirty(addr)) { // check if line we replaced was dirty  
-	    //ADDRINT wbAddr = dl1->getDirtyLine();   
-	    l2->WriteBackDirty();  // no need to update repl policy or count in miss 
+	    CACHE_TAG wbAddr = dl1->getDirtyLine(addr);   
+	    l2->WriteBackDirty(wbAddr);  // no need to update repl policy or count in miss 
+	}
+	if(!l2Hit && l2->isDirty(addr)) {
+	    l2->WriteToMemory();
 	}
     }
 
@@ -275,10 +297,13 @@ VOID StoreSingleFast(ADDRINT addr)
 {
     const BOOL dl1Hit = dl1->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_STORE);
     if(!dl1Hit) {
-	l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_LOAD); 
+	const BOOL l2Hit = l2->AccessSingleLine(addr, CACHE_BASE::ACCESS_TYPE_LOAD); //send a load request
 	if(dl1->isDirty(addr)) { // check if line we replaced was dirty  
-	    //ADDRINT wbAddr = dl1->getDirtyLine();   
-	    l2->WriteBackDirty();  // no need to update repl policy or count in miss 
+	    CACHE_TAG wbAddr = dl1->getDirtyLine(addr);   
+	    l2->WriteBackDirty(wbAddr);  // no need to update repl policy or count in miss 
+	}
+	if(!l2Hit && l2->isDirty(addr)) {
+	    l2->WriteToMemory();
 	}
     }
 }
