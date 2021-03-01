@@ -2,7 +2,7 @@
 #include <stdio.h>
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-#define MATRIX_SIZE 8192
+#define MATRIX_SIZE 4096
 // define the matrix dimensions A is MxP, B is PxN, and C is MxN
 
 // calculate C = AxB
