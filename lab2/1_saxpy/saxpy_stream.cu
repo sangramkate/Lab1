@@ -8,14 +8,17 @@
 #include "saxpy.h"
 
 __global__ void
-saxpy_kernel(int N, float alpha, float* x, float* y, float* result) {
+//saxpy_kernel(int total_elems, int i, int N, float alpha, float* x, float* y, float* result) {
+saxpy_kernel( float alpha, float* x, float* y, float* result) {
 
     // compute overall index from position of thread in current block,
     // and given the block we are in
     int index = blockIdx.x * blockDim.x + threadIdx.x;
+  //. TODO MAKE SURE CHECK IS NOT REQUIRED
 
-    if (index < N)
-       result[index] = alpha * x[index] + y[index];
+  //  if (index < N)
+  //     if(total_elems > (i * N + index))
+         result[index] = alpha * x[index] + y[index];
 }
 
 static inline
@@ -36,7 +39,7 @@ freeArrays(float *xarray, float *yarray, float *resultarray) {
 void
 saxpyCuda(long total_elems, float alpha, float* xarray, float* yarray, float* resultarray, int partitions) {
 
-    const int threadsPerBlock = 512; // change this if necessary
+    const int threadsPerBlock = 2; // change this if necessary
 
     float *device_x;
     float *device_y;
@@ -52,27 +55,40 @@ saxpyCuda(long total_elems, float alpha, float* xarray, float* yarray, float* re
     cudaMalloc(&device_y, total_elems * sizeof(float));
     cudaMalloc(&device_result, total_elems * sizeof(float));
     
-    const long NumBlocks = ((total_elems + threadsPerBlock-1)/threadsPerBlock);
+    const long  size = (total_elems/partitions);
+    const long NumBlocks = ((size)/threadsPerBlock);
+    // NEED TO EDIT THIS
+
 
     // start timing after allocation of device memory.
     double startTime = CycleTimer::currentSeconds();
-    const long  size = (total_elems/partitions);
     double startGPUTime[partitions];
     double endGPUTime[partitions];
     double timeKernel[partitions];
     double endD2HTime[partitions];
     double startH2DTime[partitions];    
     cudaStream_t streams[partitions];
-
-    for (int i=0; i<100; i++) {
+    cudaError_t errCode;
+    for (int i=0; i< partitions; i++) {
   
         //
         // TODO: copy input arrays to the GPU using cudaMemcpy
         //
             startH2DTime[i]  = CycleTimer::currentSeconds();
        
-            cudaMemcpyAsync(device_x+ i * size * sizeof(float),xarray + i * size * sizeof(float), size * sizeof(float), cudaMemcpyHostToDevice, streams[i]);
-            cudaMemcpyAsync(device_y+ i * size * sizeof(float),yarray + i * size * sizeof(float), size * sizeof(float), cudaMemcpyHostToDevice, streams[i]);
+            printf("stream start=%d\n", i);
+            printf("size =%d\n", size);
+            printf("i =%d\n", i);
+            //errCode = cudaMemcpyAsync(device_x + (i * size) ,xarray + (i * size)  , size * sizeof(float) , cudaMemcpyHostToDevice, streams[i]);
+            errCode = cudaMemcpy(device_x + (i * size) ,xarray + (i * size)  , size * sizeof(float) , cudaMemcpyHostToDevice);
+            if (errCode != cudaSuccess) {
+                fprintf(stderr, "WARNING: A CUDA error occured: code=%d, %s\n", errCode, cudaGetErrorString(errCode));
+            }
+            cudaMemcpyAsync(device_y + (i * size) ,yarray + (i * size) , size * sizeof(float) , cudaMemcpyHostToDevice, streams[i]);
+             errCode = cudaPeekAtLastError();
+            if (errCode != cudaSuccess) {
+                fprintf(stderr, "WARNING: A CUDA error occured: code=%d, %s\n", errCode, cudaGetErrorString(errCode));
+            }
              
             //
             // TODO: insert time here to begin timing only the kernel
@@ -82,7 +98,16 @@ saxpyCuda(long total_elems, float alpha, float* xarray, float* yarray, float* re
             // compute number of blocks and threads per block
 
             // run saxpy_kernel on the GPU
-            saxpy_kernel<<<NumBlocks,threadsPerBlock,0,streams[i]>>>(total_elems,alpha,device_x,device_y,device_result);
+            printf("size of float =%d\n", sizeof(float));
+            printf("size =%d\n", size);
+            printf("i =%d\n", i);
+            printf("increament = %u\n", i * size );
+            printf("xarray = %u\n", device_x + (i * size ));
+            printf("yarray = %u\n", device_y + (i * size ));
+            printf("resultarray = %d\n", device_result + i * size );
+  
+            //saxpy_kernel<<<NumBlocks,threadsPerBlock,0,streams[i]>>>(total_elems, i ,size,alpha, device_x + i * size ,device_y + i * size ,device_result + i * size);
+            saxpy_kernel<<<NumBlocks,threadsPerBlock,0,streams[i]>>>(alpha, device_x + i * size ,device_y + i * size ,device_result + i * size);
     
             //
             // TODO: insert timer here to time only the kernel.  Since the
@@ -93,9 +118,10 @@ saxpyCuda(long total_elems, float alpha, float* xarray, float* yarray, float* re
             //
             cudaStreamSynchronize(streams[i]);
             endGPUTime[i] = CycleTimer::currentSeconds();
+            printf("stream done=%d\n", i);
             timeKernel[i] = endGPUTime[i] - startGPUTime[i];
     
-            cudaError_t errCode = cudaPeekAtLastError();
+             errCode = cudaPeekAtLastError();
             if (errCode != cudaSuccess) {
                 fprintf(stderr, "WARNING: A CUDA error occured: code=%d, %s\n", errCode, cudaGetErrorString(errCode));
             }
@@ -103,7 +129,11 @@ saxpyCuda(long total_elems, float alpha, float* xarray, float* yarray, float* re
             //
             // TODO: copy result from GPU using cudaMemcpy
             //
-            cudaMemcpyAsync(resultarray+ i * size * sizeof(float),device_result+ i * size * sizeof(float),size * sizeof(float), cudaMemcpyDeviceToHost,streams[i]);
+            cudaMemcpyAsync(resultarray+ i * size ,device_result+ i * size ,size * sizeof(float), cudaMemcpyDeviceToHost,streams[i]);
+             errCode = cudaPeekAtLastError();
+            if (errCode != cudaSuccess) {
+                fprintf(stderr, "WARNING: A CUDA error occured: code=%d, %s\n", errCode, cudaGetErrorString(errCode));
+            }
     
             endD2HTime[i] = CycleTimer::currentSeconds();
     }
