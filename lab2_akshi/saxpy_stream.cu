@@ -165,7 +165,7 @@ saxpyCuda(long total_elems, float alpha, float* xarray, float* yarray, float* re
     // time to copy data to the GPU, run the kernel, and copy the
     // result back to the CPU
     double endTime = CycleTimer::currentSeconds();
-    totalTimeAvg += overallDuration;
+    totalTimeAvg += overallDuration/1000.0;
     //double overallDuration = endTime - startTime;
 
     //
