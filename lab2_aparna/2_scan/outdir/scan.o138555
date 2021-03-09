@@ -1,0 +1,46 @@
+==16599== NVPROF is profiling process 16599, command: ./cudaScan -m find_repeats -i random -n 2000000
+==16599== Warning: Profiling results might be incorrect with current version of nvcc compiler used to compile cuda app. Compile with nvcc compiler 9.0 or later version to get correct profiling results. Ignore this warning if code is already compiled with the recommended nvcc version 
+---------------------------------------------------------
+Found 4 CUDA devices
+Device 0: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 1: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 2: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 3: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+---------------------------------------------------------
+GPU_time: 2.132 ms
+Find_repeats outputs are correct!
+==16599== Profiling application: ./cudaScan -m find_repeats -i random -n 2000000
+==16599== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   33.03%  3.4394ms         6  573.24us  1.0560us  2.1621ms  [CUDA memcpy DtoH]
+                   23.75%  2.4732ms         3  824.40us  700.22us  1.0245ms  [CUDA memcpy HtoD]
+                   21.49%  2.2383ms        63  35.529us  26.689us  59.779us  upsweep_kernel(int, int, int, int*)
+                   19.38%  2.0182ms        63  32.035us  26.625us  48.066us  downsweep_kernel(int, int, int, int*)
+                    1.36%  141.22us         3  47.074us  46.498us  47.874us  gen_predicate_kernel(int, int*, int*)
+                    0.96%  99.845us         3  33.281us  32.898us  33.697us  process_repeat_kernel(int, int*, int*)
+                    0.03%  3.4880us         3  1.1620us  1.0240us  1.4400us  update_result_arr(int, int*)
+      API calls:   93.93%  311.55ms         9  34.616ms  120.66us  310.30ms  cudaMalloc
+                    1.95%  6.4721ms         9  719.13us  14.436us  2.3086ms  cudaMemcpy
+                    1.44%  4.7774ms       138  34.618us  2.5470us  61.875us  cudaDeviceSynchronize
+                    0.58%  1.9355ms       384  5.0400us     123ns  297.17us  cuDeviceGetAttribute
+                    0.57%  1.9045ms         4  476.12us  451.44us  538.81us  cudaGetDeviceProperties
+                    0.54%  1.8025ms         4  450.64us  447.79us  455.54us  cuDeviceTotalMem
+                    0.53%  1.7507ms        12  145.89us  1.6550us  338.04us  cudaFree
+                    0.25%  843.41us       135  6.2470us  4.8020us  85.553us  cudaLaunchKernel
+                    0.15%  511.54us         4  127.89us  1.3220us  506.56us  cuDeviceGetPCIBusId
+                    0.04%  144.62us         4  36.155us  31.246us  49.657us  cuDeviceGetName
+                    0.00%  2.1940us         8     274ns     124ns  1.0690us  cuDeviceGet
+                    0.00%  1.2260us         3     408ns     225ns     740ns  cuDeviceGetCount
+                    0.00%     853ns         1     853ns     853ns     853ns  cudaGetDeviceCount

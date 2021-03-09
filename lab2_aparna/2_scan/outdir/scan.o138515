@@ -1,0 +1,84 @@
+Test: scan
+--------------
+Running tests:
+--------------
+
+Element Count: 10000
+Correctness passed!
+Your Time: 0.186
+Reference Time: 0.224
+
+Element Count: 100000
+Correctness passed!
+Your Time: 0.304
+Reference Time: 0.311
+
+Element Count: 1000000
+Correctness passed!
+Your Time: 0.958
+Reference Time: 0.854
+
+Element Count: 2000000
+Correctness passed!
+Your Time: 1.611
+Reference Time: 1.204
+
+-------------------------
+Scan Score Table:
+-------------------------
+-------------------------------------------------------------------------
+| Element Count   | Fast Time       | Your Time       | Score           |
+-------------------------------------------------------------------------
+| 10000           | 0.224           | 0.186           | 1.25            |
+| 100000          | 0.311           | 0.304           | 1.25            |
+| 1000000         | 0.854           | 0.958           | 1.25            |
+| 2000000         | 1.204           | 1.611           | 0.934202358783364 |
+-------------------------------------------------------------------------
+|                                   | Total score:    | 4.68420235878336/5 |
+-------------------------------------------------------------------------
+Test: find_repeats
+--------------
+Running tests:
+--------------
+
+Element Count: 10000
+Error: Device find_repeats outputs incorrect size. Expected 971, got 7354.
+Correctness failed
+Error: Device find_repeats outputs incorrect size. Expected 971, got 7354.
+Your Time: 0.219
+Reference Time: 0.236
+
+Element Count: 100000
+Error: Device find_repeats outputs incorrect size. Expected 10096, got 41167.
+Correctness failed
+Error: Device find_repeats outputs incorrect size. Expected 10096, got 41167.
+Your Time: 0.331
+Reference Time: 0.543
+
+Element Count: 1000000
+Error: Device find_repeats outputs incorrect size. Expected 100074, got 148649.
+Correctness failed
+Error: Device find_repeats outputs incorrect size. Expected 100074, got 148649.
+Your Time: 1.142
+Reference Time: 1.468
+
+Element Count: 2000000
+Error: Device find_repeats outputs incorrect size. Expected 199937, got 297088.
+Correctness failed
+Error: Device find_repeats outputs incorrect size. Expected 200447, got 297598.
+Your Time: 1.831
+Reference Time: 2.202
+
+-------------------------
+Find_repeats Score Table:
+-------------------------
+-------------------------------------------------------------------------
+| Element Count   | Fast Time       | Your Time       | Score           |
+-------------------------------------------------------------------------
+| 10000           | 0.236           | 0.219 (F)       | 0               |
+| 100000          | 0.543           | 0.331 (F)       | 0               |
+| 1000000         | 1.468           | 1.142 (F)       | 0               |
+| 2000000         | 2.202           | 1.831 (F)       | 0               |
+-------------------------------------------------------------------------
+|                                   | Total score:    | 0/5             |
+-------------------------------------------------------------------------

@@ -1,0 +1,98 @@
+
+Currently Loaded Modules:
+  1) git/2.24.1      4) xalt/2.9.6   7) python2/2.7.16
+  2) autotools/1.2   5) TACC         8) impi/18.0.2
+  3) cmake/3.16.1    6) gcc/7.3.0    9) cuda/9.2       (g)
+
+  Where:
+   g:  built for GPU
+
+ 
+
+/tmp/slurmd/job138168/slurm_script: line 17:  1776 Segmentation fault      (core dumped) ./cudaSaxpy -n 500000000 -p 1 -i 4
+---------------------------------------------------------
+Found 4 CUDA devices
+Device 0: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 1: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 2: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 3: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+---------------------------------------------------------
+Overall time :  245.853 ms [  22.729 GB/s ]
+GPU Kernel   :  245.823 ms [   7.577 Ops/s]
+Copy CPU->GPU:    0.000 ms [     inf GB/s ]
+Copy CPU<-GPU:    0.000 ms [     inf GB/s ]
+Total CPU time: 2093.489
+check_saxpy
+Test succeeded
+---------------------------------------------------------
+Found 4 CUDA devices
+Device 0: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 1: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 2: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 3: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+---------------------------------------------------------
+Part size is 500000000
+Part size is 500000000
+Part size is 500000000
+Part size is 500000000
+Overall time :  808.488 ms [   6.912 GB/s ]
+GPU Kernel   :   15.430 ms [ 120.715 Ops/s]
+Copy CPU->GPU:  521.787 ms [   7.139 GB/s ]
+Copy CPU<-GPU:  271.009 ms [   6.873 GB/s ]
+Total CPU time: 1356.727
+check_saxpy
+Test succeeded
+---------------------------------------------------------
+Found 4 CUDA devices
+Device 0: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 1: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 2: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 3: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+---------------------------------------------------------
+Part size is 125000000
+Part size is 125000000
+Part size is 125000000
+Part size is 125000000
+Overall time :  891.823 ms [   6.266 GB/s ]
+GPU Kernel   :   15.666 ms [ 118.895 Ops/s]
+Copy CPU->GPU:  604.103 ms [   6.167 GB/s ]
+Copy CPU<-GPU:  271.503 ms [   6.860 GB/s ]
+Total CPU time: 1456.726
+check_saxpy
+Test failed

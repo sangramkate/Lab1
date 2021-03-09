@@ -1,0 +1,84 @@
+Test: scan
+--------------
+Running tests:
+--------------
+
+Element Count: 10000
+Correctness passed!
+Your Time: 0.180
+Reference Time: 0.217
+
+Element Count: 100000
+Correctness passed!
+Your Time: 0.305
+Reference Time: 0.297
+
+Element Count: 1000000
+Correctness passed!
+Your Time: 0.975
+Reference Time: 0.808
+
+Element Count: 2000000
+Correctness passed!
+Your Time: 1.610
+Reference Time: 1.214
+
+-------------------------
+Scan Score Table:
+-------------------------
+-------------------------------------------------------------------------
+| Element Count   | Fast Time       | Your Time       | Score           |
+-------------------------------------------------------------------------
+| 10000           | 0.217           | 0.180           | 1.25            |
+| 100000          | 0.297           | 0.305           | 1.25            |
+| 1000000         | 0.808           | 0.975           | 1.03589743589744 |
+| 2000000         | 1.214           | 1.610           | 0.942546583850932 |
+-------------------------------------------------------------------------
+|                                   | Total score:    | 4.47844401974837/5 |
+-------------------------------------------------------------------------
+Test: find_repeats
+--------------
+Running tests:
+--------------
+
+Element Count: 10000
+Error: Device find_repeats outputs incorrect size. Expected 1005, got 7388.
+Correctness failed
+Error: Device find_repeats outputs incorrect size. Expected 1005, got 7388.
+Your Time: 0.207
+Reference Time: 0.244
+
+Element Count: 100000
+Error: Device find_repeats outputs incorrect size. Expected 9979, got 41050.
+Correctness failed
+Error: Device find_repeats outputs incorrect size. Expected 9979, got 41050.
+Your Time: 0.336
+Reference Time: 0.527
+
+Element Count: 1000000
+GPUassert: an illegal memory access was encountered scan.cu 256
+Correctness failed
+GPUassert: an illegal memory access was encountered scan.cu 256
+Your Time: 
+Reference Time: 1.460
+
+Element Count: 2000000
+GPUassert: an illegal memory access was encountered scan.cu 256
+Correctness failed
+GPUassert: an illegal memory access was encountered scan.cu 256
+Your Time: 
+Reference Time: 2.196
+
+-------------------------
+Find_repeats Score Table:
+-------------------------
+-------------------------------------------------------------------------
+| Element Count   | Fast Time       | Your Time       | Score           |
+-------------------------------------------------------------------------
+| 10000           | 0.244           | 0.207 (F)       | 0               |
+| 100000          | 0.527           | 0.336 (F)       | 0               |
+| 1000000         | 1.460           |  (F)            | 0               |
+| 2000000         | 2.196           |  (F)            | 0               |
+-------------------------------------------------------------------------
+|                                   | Total score:    | 0/5             |
+-------------------------------------------------------------------------

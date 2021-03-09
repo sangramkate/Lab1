@@ -1,0 +1,94 @@
+
+Currently Loaded Modules:
+  1) git/2.24.1      4) xalt/2.9.6   7) python2/2.7.16
+  2) autotools/1.2   5) TACC         8) impi/18.0.2
+  3) cmake/3.16.1    6) gcc/7.3.0    9) cuda/9.2       (g)
+
+  Where:
+   g:  built for GPU
+
+ 
+
+SAXPY STREAM PARALLEL
+---------------------------------------------------------
+Found 4 CUDA devices
+Device 0: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 1: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 2: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 3: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+---------------------------------------------------------
+Part size is 4096
+Part size is 4096
+Part size is 4096
+Part size is 4096
+Overall time :    0.296 ms [   0.309 GB/s ]
+GPU Kernel   :    0.029 ms [   1.060 Ops/s]
+Copy CPU->GPU:    0.039 ms [   1.550 GB/s ]
+Copy CPU<-GPU:    0.027 ms [   1.112 GB/s ]
+Total CPU time:    0.022
+check_saxpy
+Test succeeded
+==2295== NVPROF is profiling process 2295, command: ./cudaSaxpyStream -n 8192 -p 2 -i 4
+---------------------------------------------------------
+Found 4 CUDA devices
+Device 0: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 1: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 2: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 3: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+---------------------------------------------------------
+Part size is 4096
+Part size is 4096
+Part size is 4096
+Part size is 4096
+Overall time :    0.203 ms [   0.450 GB/s ]
+GPU Kernel   :    0.043 ms [   0.710 Ops/s]
+Copy CPU->GPU:    0.054 ms [   1.137 GB/s ]
+Copy CPU<-GPU:    0.035 ms [   0.868 GB/s ]
+Total CPU time:    0.022
+check_saxpy
+Test succeeded
+==2295== Profiling application: ./cudaSaxpyStream -n 8192 -p 2 -i 4
+==2295== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   59.42%  37.441us        16  2.3400us  2.3040us  2.3690us  [CUDA memcpy HtoD]
+                   23.97%  15.104us         8  1.8880us  1.8560us  1.9200us  [CUDA memcpy DtoH]
+                   16.61%  10.465us         8  1.3080us  1.1840us  1.6320us  saxpy_kernel(int, float, float*, float*, float*)
+      API calls:   97.54%  260.44ms        12  21.703ms  1.9650us  260.05ms  cudaMalloc
+                    0.67%  1.7959ms         4  448.98us  445.60us  452.52us  cuDeviceTotalMem
+                    0.66%  1.7702ms         4  442.55us  438.16us  449.54us  cudaGetDeviceProperties
+                    0.63%  1.6804ms       384  4.3750us     124ns  257.54us  cuDeviceGetAttribute
+                    0.18%  489.85us        12  40.821us  2.3720us  134.57us  cudaFree
+                    0.13%  346.89us        24  14.453us  7.8910us  29.847us  cudaMemcpy
+                    0.07%  177.18us         8  22.148us  3.6360us  135.93us  cudaStreamCreate
+                    0.05%  126.71us         4  31.676us  28.333us  40.827us  cuDeviceGetName
+                    0.05%  122.10us         8  15.262us  8.9420us  42.481us  cudaLaunchKernel
+                    0.01%  31.640us         8  3.9550us  3.3950us  4.5620us  cudaDeviceSynchronize
+                    0.00%  10.880us         4  2.7200us  1.2970us  6.7230us  cuDeviceGetPCIBusId
+                    0.00%  1.9660us         8     245ns     179ns     323ns  cudaPeekAtLastError
+                    0.00%  1.9360us         8     242ns     118ns     973ns  cuDeviceGet
+                    0.00%  1.1240us         3     374ns     182ns     716ns  cuDeviceGetCount
+                    0.00%     722ns         1     722ns     722ns     722ns  cudaGetDeviceCount

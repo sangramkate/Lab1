@@ -1,0 +1,38 @@
+Test: find_repeats
+--------------
+Running tests:
+--------------
+
+Element Count: 10000
+Correctness passed!
+Your Time: 0.205
+Reference Time: 0.242
+
+Element Count: 100000
+Correctness passed!
+Your Time: 0.339
+Reference Time: 0.559
+
+Element Count: 1000000
+Correctness passed!
+Your Time: 1.112
+Reference Time: 1.473
+
+Element Count: 2000000
+Correctness passed!
+Your Time: 1.794
+Reference Time: 2.178
+
+-------------------------
+Find_repeats Score Table:
+-------------------------
+-------------------------------------------------------------------------
+| Element Count   | Fast Time       | Your Time       | Score           |
+-------------------------------------------------------------------------
+| 10000           | 0.242           | 0.205           | 1.25            |
+| 100000          | 0.559           | 0.339           | 1.25            |
+| 1000000         | 1.473           | 1.112           | 1.25            |
+| 2000000         | 2.178           | 1.794           | 1.25            |
+-------------------------------------------------------------------------
+|                                   | Total score:    | 5/5             |
+-------------------------------------------------------------------------

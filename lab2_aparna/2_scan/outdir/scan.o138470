@@ -1,0 +1,78 @@
+Test: scan
+--------------
+Running tests:
+--------------
+
+Element Count: 10000
+Correctness passed!
+Your Time: 0.186
+Reference Time: 0.212
+
+Element Count: 100000
+Correctness passed!
+Your Time: 0.297
+Reference Time: 0.293
+
+Element Count: 1000000
+Correctness passed!
+Your Time: 0.973
+Reference Time: 0.812
+
+Element Count: 2000000
+Correctness passed!
+Your Time: 1.596
+Reference Time: 1.204
+
+-------------------------
+Scan Score Table:
+-------------------------
+-------------------------------------------------------------------------
+| Element Count   | Fast Time       | Your Time       | Score           |
+-------------------------------------------------------------------------
+| 10000           | 0.212           | 0.186           | 1.25            |
+| 100000          | 0.293           | 0.297           | 1.25            |
+| 1000000         | 0.812           | 0.973           | 1.25            |
+| 2000000         | 1.204           | 1.596           | 0.942982456140351 |
+-------------------------------------------------------------------------
+|                                   | Total score:    | 4.69298245614035/5 |
+-------------------------------------------------------------------------
+Test: scan
+--------------
+Running tests:
+--------------
+
+Element Count: 10000
+==16709== Warning: Child processes are not profiled. Use option --profile-child-processes to profile them.
+
+Correctness passed!
+Your Time: 0.185
+Reference Time: 0.196
+
+Element Count: 100000
+Correctness passed!
+Your Time: 0.311
+Reference Time: 0.289
+
+Element Count: 1000000
+Correctness passed!
+Your Time: 0.963
+Reference Time: 0.802
+
+Element Count: 2000000
+Correctness passed!
+Your Time: 1.625
+Reference Time: 1.186
+
+-------------------------
+Scan Score Table:
+-------------------------
+-------------------------------------------------------------------------
+| Element Count   | Fast Time       | Your Time       | Score           |
+-------------------------------------------------------------------------
+| 10000           | 0.196           | 0.185           | 1.25            |
+| 100000          | 0.289           | 0.311           | 1.25            |
+| 1000000         | 0.802           | 0.963           | 1.04101765316719 |
+| 2000000         | 1.186           | 1.625           | 0.912307692307692 |
+-------------------------------------------------------------------------
+|                                   | Total score:    | 4.45332534547488/5 |
+-------------------------------------------------------------------------

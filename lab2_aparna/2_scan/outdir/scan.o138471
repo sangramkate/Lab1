@@ -1,0 +1,175 @@
+Test: scan
+--------------
+Running tests:
+--------------
+
+Element Count: 10000
+Correctness passed!
+Your Time: 0.179
+Reference Time: 0.233
+
+Element Count: 100000
+Correctness passed!
+Your Time: 0.303
+Reference Time: 0.307
+
+Element Count: 1000000
+Correctness passed!
+Your Time: 0.940
+Reference Time: 0.807
+
+Element Count: 2000000
+Correctness passed!
+Your Time: 1.601
+Reference Time: 1.213
+
+-------------------------
+Scan Score Table:
+-------------------------
+-------------------------------------------------------------------------
+| Element Count   | Fast Time       | Your Time       | Score           |
+-------------------------------------------------------------------------
+| 10000           | 0.233           | 0.179           | 1.25            |
+| 100000          | 0.307           | 0.303           | 1.25            |
+| 1000000         | 0.807           | 0.940           | 1.25            |
+| 2000000         | 1.213           | 1.601           | 0.947064334790756 |
+-------------------------------------------------------------------------
+|                                   | Total score:    | 4.69706433479076/5 |
+-------------------------------------------------------------------------
+Test: find_repeats
+--------------
+Running tests:
+--------------
+
+Element Count: 10000
+Error: Device find_repeats outputs incorrect size. Expected 984, got 0.
+Correctness failed
+Error: Device find_repeats outputs incorrect size. Expected 984, got 0.
+Your Time: 0.007
+Reference Time: 0.241
+
+Element Count: 100000
+Error: Device find_repeats outputs incorrect size. Expected 9947, got 0.
+Correctness failed
+Error: Device find_repeats outputs incorrect size. Expected 9947, got 0.
+Your Time: 0.038
+Reference Time: 0.556
+
+Element Count: 1000000
+Error: Device find_repeats outputs incorrect size. Expected 100237, got 0.
+Correctness failed
+Error: Device find_repeats outputs incorrect size. Expected 101035, got 0.
+Your Time: 0.113
+Reference Time: 1.458
+
+Element Count: 2000000
+Error: Device find_repeats outputs incorrect size. Expected 201328, got 0.
+Correctness failed
+Error: Device find_repeats outputs incorrect size. Expected 201328, got 0.
+Your Time: 0.089
+Reference Time: 2.181
+
+-------------------------
+Find_repeats Score Table:
+-------------------------
+-------------------------------------------------------------------------
+| Element Count   | Fast Time       | Your Time       | Score           |
+-------------------------------------------------------------------------
+| 10000           | 0.241           | 0.007 (F)       | 0               |
+| 100000          | 0.556           | 0.038 (F)       | 0               |
+| 1000000         | 1.458           | 0.113 (F)       | 0               |
+| 2000000         | 2.181           | 0.089 (F)       | 0               |
+-------------------------------------------------------------------------
+|                                   | Total score:    | 0/5             |
+-------------------------------------------------------------------------
+==17693== NVPROF is profiling process 17693, command: ./cudaScan -m scan -i random -n 2000000
+==17693== Warning: Profiling results might be incorrect with current version of nvcc compiler used to compile cuda app. Compile with nvcc compiler 9.0 or later version to get correct profiling results. Ignore this warning if code is already compiled with the recommended nvcc version 
+---------------------------------------------------------
+Found 4 CUDA devices
+Device 0: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 1: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 2: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 3: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+---------------------------------------------------------
+GPU_time: 1.912 ms
+Scan outputs are correct!
+==17693== Profiling application: ./cudaScan -m scan -i random -n 2000000
+==17693== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   36.83%  4.5620ms         6  760.33us  679.51us  1.1134ms  [CUDA memcpy HtoD]
+                   27.28%  3.3790ms         3  1.1263ms  618.29us  2.1398ms  [CUDA memcpy DtoH]
+                   19.04%  2.3586ms        63  37.438us  27.137us  61.538us  upsweep_kernel(int, int, int, int*)
+                   16.81%  2.0822ms        63  33.050us  27.105us  48.258us  downsweep_kernel(int, int, int, int*)
+                    0.03%  3.3280us         3  1.1090us  1.0240us  1.2480us  update_result_arr(int, int*)
+      API calls:   93.06%  260.64ms         6  43.441ms  125.79us  259.94ms  cudaMalloc
+                    3.05%  8.5299ms         9  947.77us  677.00us  2.2490ms  cudaMemcpy
+                    1.75%  4.9061ms       132  37.167us  1.1790us  135.96us  cudaDeviceSynchronize
+                    0.64%  1.7841ms         4  446.03us  443.79us  449.13us  cuDeviceTotalMem
+                    0.60%  1.6847ms       384  4.3870us     124ns  267.46us  cuDeviceGetAttribute
+                    0.59%  1.6445ms         4  411.12us  329.60us  440.66us  cudaGetDeviceProperties
+                    0.27%  748.60us       129  5.8030us  4.6330us  74.511us  cudaLaunchKernel
+                    0.05%  129.22us         4  32.306us  28.666us  41.226us  cuDeviceGetName
+                    0.00%  12.119us         4  3.0290us  1.1510us  6.5560us  cuDeviceGetPCIBusId
+                    0.00%  1.8750us         8     234ns     119ns     966ns  cuDeviceGet
+                    0.00%  1.0170us         3     339ns     124ns     661ns  cuDeviceGetCount
+                    0.00%     714ns         1     714ns     714ns     714ns  cudaGetDeviceCount
+==17713== NVPROF is profiling process 17713, command: ./cudaScan -m scan -i random -n 2000000 --thrust
+==17713== Warning: Profiling results might be incorrect with current version of nvcc compiler used to compile cuda app. Compile with nvcc compiler 9.0 or later version to get correct profiling results. Ignore this warning if code is already compiled with the recommended nvcc version 
+---------------------------------------------------------
+Found 4 CUDA devices
+Device 0: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 1: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 2: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 3: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+---------------------------------------------------------
+Thrust GPU time: 0.311 ms
+Scan outputs are correct!
+==17713== Profiling application: ./cudaScan -m scan -i random -n 2000000 --thrust
+==17713== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   53.24%  2.9768ms         3  992.27us  648.70us  1.6733ms  [CUDA memcpy DtoH]
+                   44.06%  2.4634ms         3  821.14us  690.33us  1.0203ms  [CUDA memcpy HtoD]
+                    2.64%  147.46us         3  49.153us  46.369us  52.354us  void thrust::cuda_cub::core::_kernel_agent<thrust::cuda_cub::__scan::ScanAgent<thrust::device_ptr<int>, thrust::device_ptr<int>, thrust::plus<int>, int, int, thrust::detail::integral_constant<bool, bool=0>>, thrust::device_ptr<int>, thrust::device_ptr<int>, thrust::plus<int>, int, thrust::cuda_cub::cub::ScanTileState<int, bool=1>, thrust::cuda_cub::__scan::AddInitToExclusiveScan<int, thrust::plus<int>>>(thrust::device_ptr<int>, thrust::device_ptr<int>, int, thrust::plus<int>, int, int)
+                    0.07%  3.9680us         3  1.3220us  1.2160us  1.4400us  void thrust::cuda_cub::core::_kernel_agent<thrust::cuda_cub::__scan::InitAgent<thrust::cuda_cub::cub::ScanTileState<int, bool=1>, int>, thrust::cuda_cub::cub::ScanTileState<int, bool=1>, int>(bool=1, thrust::cuda_cub::cub::ScanTileState<int, bool=1>)
+      API calls:   93.51%  202.45ms         9  22.494ms  119.52us  201.19ms  cudaMalloc
+                    2.76%  5.9814ms         6  996.90us  675.21us  1.8069ms  cudaMemcpy
+                    0.83%  1.7892ms         4  447.29us  445.40us  449.00us  cuDeviceTotalMem
+                    0.79%  1.7180ms       384  4.4730us     128ns  260.30us  cuDeviceGetAttribute
+                    0.79%  1.7065ms         9  189.61us  101.87us  335.59us  cudaFree
+                    0.76%  1.6553ms         4  413.83us  341.44us  441.12us  cudaGetDeviceProperties
+                    0.34%  738.90us         6  123.15us  3.1020us  722.17us  cudaFuncGetAttributes
+                    0.07%  157.87us         6  26.312us  2.8390us  50.604us  cudaDeviceSynchronize
+                    0.06%  140.02us         6  23.336us  5.9360us  87.826us  cudaLaunchKernel
+                    0.06%  130.79us         4  32.698us  29.826us  40.695us  cuDeviceGetName
+                    0.01%  11.806us         4  2.9510us  1.2180us  6.8670us  cuDeviceGetPCIBusId
+                    0.00%  7.6920us        12     641ns     262ns  2.8060us  cudaDeviceGetAttribute
+                    0.00%  7.2600us        12     605ns     266ns  2.4400us  cudaGetDevice
+                    0.00%  2.5460us         9     282ns     154ns     566ns  cudaGetLastError
+                    0.00%  1.9080us        12     159ns     115ns     324ns  cudaPeekAtLastError
+                    0.00%  1.8830us         8     235ns     116ns     692ns  cuDeviceGet
+                    0.00%  1.2310us         3     410ns     237ns     749ns  cuDeviceGetCount
+                    0.00%     679ns         1     679ns     679ns     679ns  cudaGetDeviceCount
