@@ -52,6 +52,23 @@ downsweep_kernel(int N, int twod, int twod1, int* output) {
 }
 
 __global__ void
+downsweep_small_kernel(int N, int* output) {
+
+    // compute overall index from dev_offsetition of thread in current block,
+    // and given the block we are in
+    int index = threadIdx.x;
+
+    int num_threads = 1024;
+    for(int i=N/1024; i<N; i*=2) {
+        if(index < num_threads) {
+            output[i*index + i - 1] += output[i*index + i/2 - 1];
+        }
+        num_threads /= 2;
+        __syncthreads();
+    }
+}
+
+__global__ void
 update_result_arr(int N, int* output) {
     output[N-1] = 0; 
 }
@@ -82,11 +99,14 @@ void exclusive_scan(int* device_start, int length, int* device_result)
 
     const int threadsPerBlock = 256; // change this if necessary
     int N = nextPow2(length);
-    for(int twod=1; twod<N; twod*=2)  {
+    for(int twod=1; twod<N/2048; twod*=2)  {
         int twod1 = twod*2;
         downsweep_kernel<<<(N + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock>>>(N, twod, twod1, device_result); 
         gpuErrchk(cudaDeviceSynchronize());
     }
+
+    downsweep_small_kernel<<<1, 1024>>>(N, device_result); 
+    gpuErrchk(cudaDeviceSynchronize());
 
     //device_result[N-1] = 0;
     update_result_arr<<<1, 1>>>(N, device_result);
