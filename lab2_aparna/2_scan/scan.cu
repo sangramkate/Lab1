@@ -40,7 +40,7 @@ static inline int nextPow2(int n)
 }
 
 __global__ void
-downsweep_kernel(int N, int twod, int twod1, int* output) {
+upsweep_kernel(int N, int twod, int twod1, int* output) {
 
     // compute overall index from dev_offsetition of thread in current block,
     // and given the block we are in
@@ -52,7 +52,7 @@ downsweep_kernel(int N, int twod, int twod1, int* output) {
 }
 
 __global__ void
-downsweep_small_kernel(int N, int* output) {
+upsweep_small_kernel(int N, int* output) {
 
     // compute overall index from dev_offsetition of thread in current block,
     // and given the block we are in
@@ -74,7 +74,7 @@ update_result_arr(int N, int* output) {
 }
 
 __global__ void
-upsweep_kernel(int N, int twod, int twod1, int* output) {
+downsweep_kernel(int N, int twod, int twod1, int* output) {
 
     int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -101,11 +101,11 @@ void exclusive_scan(int* device_start, int length, int* device_result)
     int N = nextPow2(length);
     for(int twod=1; twod<N/2048; twod*=2)  {
         int twod1 = twod*2;
-        downsweep_kernel<<<(N + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock>>>(N, twod, twod1, device_result); 
+        upsweep_kernel<<<(N + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock>>>(N, twod, twod1, device_result); 
         gpuErrchk(cudaDeviceSynchronize());
     }
 
-    downsweep_small_kernel<<<1, 1024>>>(N, device_result); 
+    upsweep_small_kernel<<<1, 1024>>>(N, device_result); 
     gpuErrchk(cudaDeviceSynchronize());
 
     //device_result[N-1] = 0;
@@ -115,7 +115,7 @@ void exclusive_scan(int* device_start, int length, int* device_result)
 
     for(int twod=N/2; twod >=1; twod/=2) {
         int twod1 = twod*2 ;
-        upsweep_kernel<<<(N + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock>>>(N, twod, twod1, device_result); 
+        downsweep_kernel<<<(N + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock>>>(N, twod, twod1, device_result); 
         gpuErrchk(cudaDeviceSynchronize());
     }
 
