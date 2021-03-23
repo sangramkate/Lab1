@@ -401,12 +401,19 @@ __global__ void kernelRenderCircles(int index, int imageWidth, int imageHeight, 
     float invHeight = 1.f / imageHeight;
     int index3 = 3 * index;
     float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
+
+    int x = blockIdx.x*blockDim.x + threadIdx.x + screenMinX;
+    int y = blockIdx.y*blockDim.y + threadIdx.y + screenMinY;
+    if(x >= screenMaxX) return;
+    if(y >= screenMaxY) return;
+    /*
     const unsigned int offset = blockIdx.x*blockDim.x + threadIdx.x;
 
     if(offset >= (screenMaxX - screenMinX) * (screenMaxY - screenMinY)) return;
 
     int x = (offset % (screenMaxX - screenMinX)) + screenMinX;
     int y = (offset / (screenMaxX - screenMinX)) + screenMinY;
+    */
     float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * (y * imageWidth + x)]);
     float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(x) + 0.5f),
                                                  invHeight * (static_cast<float>(y) + 0.5f));
@@ -666,10 +673,10 @@ CudaRenderer::render() {
         int screenMinY = CLAMP(static_cast<int>(minY * image->height), 0, image->height);
         int screenMaxY = CLAMP(static_cast<int>(maxY * image->height)+1, 0, image->height);
         */
-        int numPixels = (screenMaxY - screenMinY) * (screenMaxX - screenMinX);
+        //int numPixels = (screenMaxY - screenMinY) * (screenMaxX - screenMinX);
         
-        dim3 blockDim(256, 1);
-        dim3 gridDim((numPixels  + blockDim.x - 1) / blockDim.x);
+        dim3 blockDim(16, 16);
+        dim3 gridDim(((screenMaxX - screenMinX) + blockDim.x - 1) / blockDim.x, ((screenMaxY - screenMinY) + blockDim.y - 1) / blockDim.y);
 
         kernelRenderCircles<<<gridDim, blockDim>>>(i, imageWidth, imageHeight, screenMinX, screenMinY, screenMaxX, screenMaxY);
         gpuErrchk(cudaDeviceSynchronize());
