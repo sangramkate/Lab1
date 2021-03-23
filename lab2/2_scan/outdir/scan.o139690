@@ -1,0 +1,76 @@
+Test: scan
+--------------
+Running tests:
+--------------
+
+Element Count: 10000
+Correctness passed!
+Your Time: 0.130
+Reference Time: 0.204
+
+Element Count: 100000
+Correctness passed!
+Your Time: 0.232
+Reference Time: 0.296
+
+Element Count: 1000000
+Correctness passed!
+Your Time: 0.778
+Reference Time: 0.813
+
+Element Count: 2000000
+Correctness passed!
+Your Time: 1.269
+Reference Time: 1.230
+
+-------------------------
+Scan Score Table:
+-------------------------
+-------------------------------------------------------------------------
+| Element Count   | Fast Time       | Your Time       | Score           |
+-------------------------------------------------------------------------
+| 10000           | 0.204           | 0.130           | 1.25            |
+| 100000          | 0.296           | 0.232           | 1.25            |
+| 1000000         | 0.813           | 0.778           | 1.25            |
+| 2000000         | 1.230           | 1.269           | 1.25            |
+-------------------------------------------------------------------------
+|                                   | Total score:    | 5/5             |
+-------------------------------------------------------------------------
+Test: find_repeats
+--------------
+Running tests:
+--------------
+
+Element Count: 10000
+Correctness passed!
+Your Time: 0.162
+Reference Time: 0.232
+
+Element Count: 100000
+Correctness passed!
+Your Time: 0.266
+Reference Time: 0.570
+
+Element Count: 1000000
+Correctness passed!
+Your Time: 0.976
+Reference Time: 1.517
+
+Element Count: 2000000
+Correctness passed!
+Your Time: 1.525
+Reference Time: 2.232
+
+-------------------------
+Find_repeats Score Table:
+-------------------------
+-------------------------------------------------------------------------
+| Element Count   | Fast Time       | Your Time       | Score           |
+-------------------------------------------------------------------------
+| 10000           | 0.232           | 0.162           | 1.25            |
+| 100000          | 0.570           | 0.266           | 1.25            |
+| 1000000         | 1.517           | 0.976           | 1.25            |
+| 2000000         | 2.232           | 1.525           | 1.25            |
+-------------------------------------------------------------------------
+|                                   | Total score:    | 5/5             |
+-------------------------------------------------------------------------

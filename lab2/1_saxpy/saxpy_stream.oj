@@ -1,8 +1,0 @@
-/tmp/slurmd/job137831/slurm_script: line 14: 21895 Segmentation fault      (core dumped) ./cudaSaxpyStream
-==21964== NVPROF is profiling process 21964, command: ./cudaSaxpyStream
-==21964== Profiling application: ./cudaSaxpyStream
-==21964== Profiling result:
-No kernels were profiled.
-No API activities were profiled.
-==21964== Warning: Some profiling data are not recorded. Make sure cudaProfilerStop() or cuProfilerStop() is called before application exit to flush profile data.
-======== Error: Application received signal 139

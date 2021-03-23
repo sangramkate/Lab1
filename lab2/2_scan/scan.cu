@@ -11,6 +11,17 @@
 
 #include "CycleTimer.h"
 
+#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
+inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
+{
+   if (code != cudaSuccess) 
+   {
+      fprintf(stderr,"GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
+      if (abort) exit(code);
+   }
+}
+
+
 extern float toBW(int bytes, float sec);
 
 
@@ -28,6 +39,52 @@ static inline int nextPow2(int n)
     return n;
 }
 
+__global__ void
+upsweep_kernel(int N, int twod, int twod1, int* output) {
+
+    // compute overall index from dev_offsetition of thread in current block,
+    // and given the block we are in
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if ((index < N) && ((index % twod1) == 0)) {
+        output[index + twod1 - 1] += output[index + twod -1];    
+    }
+}
+
+__global__ void
+upsweep_small_kernel(int N, int* output) {
+
+    // compute overall index from dev_offsetition of thread in current block,
+    // and given the block we are in
+    int index = threadIdx.x;
+
+    int num_threads = 1024;
+    for(int i=N/1024; i<N; i*=2) {
+        if(index < num_threads) {
+            output[i*index + i - 1] += output[i*index + i/2 - 1];
+        }
+        num_threads /= 2;
+        __syncthreads();
+    }
+}
+
+__global__ void
+update_result_arr(int N, int* output) {
+    output[N-1] = 0; 
+}
+
+__global__ void
+downsweep_kernel(int N, int twod, int twod1, int* output) {
+
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if ((index < N) && ((index % twod1) == 0)) {
+        int t = output[index + twod - 1];
+         output[index+twod-1] = output[index+twod1-1];
+         output[index+twod1-1] += t; // change twod1 to twod to reverse prefix sum.
+    }
+}
+
 void exclusive_scan(int* device_start, int length, int* device_result)
 {
     /* Fill in this function with your exclusive scan implementation.
@@ -39,6 +96,29 @@ void exclusive_scan(int* device_start, int length, int* device_result)
      * both the input and the output arrays are sized to accommodate the next
      * power of 2 larger than the input.
      */
+
+    const int threadsPerBlock = 256; // change this if necessary
+    int N = nextPow2(length);
+    for(int twod=1; twod<N/2048; twod*=2)  {
+        int twod1 = twod*2;
+        upsweep_kernel<<<(N + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock>>>(N, twod, twod1, device_result); 
+        gpuErrchk(cudaDeviceSynchronize());
+    }
+
+    upsweep_small_kernel<<<1, 1024>>>(N, device_result); 
+    gpuErrchk(cudaDeviceSynchronize());
+
+    //device_result[N-1] = 0;
+    update_result_arr<<<1, 1>>>(N, device_result);
+    gpuErrchk(cudaDeviceSynchronize());
+
+
+    for(int twod=N/2; twod >=1; twod/=2) {
+        int twod1 = twod*2 ;
+        downsweep_kernel<<<(N + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock>>>(N, twod, twod1, device_result); 
+        gpuErrchk(cudaDeviceSynchronize());
+    }
+
 }
 
 /* This function is a wrapper around the code you will write - it copies the
@@ -114,6 +194,43 @@ double cudaScanThrust(int* inarray, int* end, int* resultarray) {
     return overallDuration;
 }
 
+__global__ void
+gen_predicate_kernel(int N, int* input, int* predicate) {
+
+    // compute overall index from dev_offsetition of thread in current block,
+    // and given the block we are in
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    //TODO: optimize this. This is too unoptimal!  
+    //I think malloc initializes it to 0.. then we can get rid of this line
+    if (index == N-1) {
+        predicate[index] = 0;
+    }
+
+    if (index < N-1) {
+        if(input[index] == input[index+1]) {
+            predicate[index] = 1;
+        } else {
+            predicate[index] = 0;
+        }
+    }
+
+}
+
+__global__ void
+process_repeat_kernel(int N, int* output, int* predicate) {
+
+    // compute overall index from dev_offsetition of thread in current block,
+    // and given the block we are in
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (index < N) {
+        if(predicate[index] != predicate[index + 1]) {
+            output[predicate[index]] = index;
+        }
+    }
+}
+
 int find_repeats(int *device_input, int length, int *device_output) {
     /* Finds all pairs of adjacent repeated elements in the list, storing the
      * indices of the first element of each pair (in order) into device_result.
@@ -126,7 +243,44 @@ int find_repeats(int *device_input, int length, int *device_output) {
      * it requires that. However, you must ensure that the results of
      * find_repeats are correct given the original length.
      */    
-    return 0;
+
+    //TODO: how do we ensure it works for original length? 
+    int N = nextPow2(length);
+    const int threadsPerBlock = 256; // change this if necessary
+   
+    /* 
+    //Debug
+    int *predicate_cpu_arr = (int*) malloc(length*sizeof(int));
+    gpuErrchk(cudaMemcpy(predicate_cpu_arr, device_input, length*sizeof(int), cudaMemcpyDeviceToHost));
+    gpuErrchk(cudaDeviceSynchronize());
+    for(int i=0; i<length; i++) {
+        printf("Array of input before scan : a[%d] = %d\n", i, predicate_cpu_arr[i]);
+    }
+    cudaFree(predicate_cpu_arr);
+    */
+
+    //Gen predicate    : keeping it N sized array to make exclusive scan easier
+    int *predicate_arr;
+    gpuErrchk(cudaMalloc(&predicate_arr, N*sizeof(float)));
+    gen_predicate_kernel<<<(N + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock>>>(N, device_input, predicate_arr);
+    gpuErrchk(cudaDeviceSynchronize());
+
+    //Do exclusive scan
+    exclusive_scan(device_input, length, predicate_arr);
+    
+    //Parallely get the value of predicate array's last element
+    //Reading the value only after length.. 
+    int *predicate_size = new int[1];
+    gpuErrchk(cudaMemcpy(predicate_size, predicate_arr+length-1, sizeof(int), cudaMemcpyDeviceToHost));
+
+    //Process result to find repeats
+    process_repeat_kernel<<<(length + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock>>>(length, device_output, predicate_arr);
+    gpuErrchk(cudaDeviceSynchronize());
+
+    int ret_len = predicate_size[0]; 
+    cudaFree(predicate_arr);
+    cudaFree(predicate_size);
+    return ret_len;
 }
 
 /* Timing wrapper around find_repeats. You should not modify this function.

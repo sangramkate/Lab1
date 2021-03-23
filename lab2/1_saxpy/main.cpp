@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <time.h>
+#include "CycleTimer.h"
 #include "saxpy.h"
 #include "common.h"
 double timeKernelAvg = 0.0;
@@ -12,7 +13,7 @@ double timeCopyD2HAvg = 0.0;
 double totalTimeAvg = 0.0;
 
 // return GB/s
-float toBW(long bytes, float sec) {
+float toBW(long long bytes, float sec) {
     return static_cast<float>(bytes) / (1024. * 1024. * 1024.) / sec;
 }
 
@@ -55,7 +56,7 @@ int main(int argc, char** argv)
 {
 
     long total_elems = 512 * 1024 * 1024; 
-    int partitions = 64;
+    int partitions = 1;
     int iterations = 1;
     // parse commandline options ////////////////////////////////////////////
     int opt;
@@ -66,7 +67,7 @@ int main(int argc, char** argv)
         {"help",       0, 0, '?'},
         {0 ,0, 0, 0}
     };
-   
+ 
     while ((opt = getopt_long(argc, argv, "?n:p:i:", long_options, NULL)) != EOF) {
  
         switch (opt) {
@@ -88,16 +89,14 @@ int main(int argc, char** argv)
     // end parsing of commandline options //////////////////////////////////////
  
     const float alpha = 2.0f;
-    float* xarray;
-    float* yarray;
-    float* resultarray ;
+    float* xarray      = NULL;
+    float* yarray      = NULL;
+    float* resultarray = NULL;
     //
     // TODO: allocate host-side memory
     //
-    xarray = (float *) malloc(total_elems * sizeof(float)); 
-    yarray = (float *) malloc(total_elems * sizeof(float)); 
-    resultarray = (float *) malloc(total_elems * sizeof(float)); 
-    //getArrays(total_elems,&xarray,&yarray,&resultarray);
+    getArrays(total_elems,&xarray,&yarray,&resultarray);
+    //
     // TODO: initialize input arrays
     //
     srand(time(NULL));
@@ -105,7 +104,6 @@ int main(int argc, char** argv)
         xarray[i] = rand() / 100;
         yarray[i] = rand() / 100;
     }
-
 
     printCudaInfo();
 
@@ -117,7 +115,7 @@ int main(int argc, char** argv)
     timeCopyH2DAvg /= iterations;
     timeCopyD2HAvg /= iterations;
 
-    const int totalBytes = sizeof(float) * 3 * total_elems;
+    const long long totalBytes = sizeof(float) * 3 * total_elems;
     printf("Overall time : %8.3f ms [%8.3f GB/s ]\n", 1000.f * totalTimeAvg, toBW(totalBytes, totalTimeAvg));
     printf("GPU Kernel   : %8.3f ms [%8.3f Ops/s]\n", 1000.f * timeKernelAvg, toBW(totalBytes/3, timeKernelAvg));
     printf("Copy CPU->GPU: %8.3f ms [%8.3f GB/s ]\n", 1000.f * timeCopyH2DAvg, toBW(totalBytes*2/3, timeCopyH2DAvg));
@@ -125,8 +123,15 @@ int main(int argc, char** argv)
     
     if (resultarray != NULL) {
         float* resultrefer = new float[total_elems]();
-        saxpyCpu(total_elems, alpha, xarray, yarray, resultrefer);
-    
+
+        double CPUTime = 0.0;
+        for (int i = 0; i < iterations; i++) {
+            double startTime = CycleTimer::currentSeconds();
+            saxpyCpu(total_elems, alpha, xarray, yarray, resultrefer);
+            CPUTime += CycleTimer::currentSeconds()-startTime;
+        }
+        CPUTime /= iterations;
+        printf("CPU time: %8.3f ms\n",1000.f * CPUTime);
         if (check_saxpy(total_elems, resultarray, resultrefer)) {
             printf("Test succeeded\n");
         } else {
@@ -137,9 +142,7 @@ int main(int argc, char** argv)
     //
     // TODO: deallocate host-side memory
     //
-    //freeArrays(xarray,yarray,resultarray);
-    free(xarray);
-    free(yarray);
-    free(resultarray);
+    freeArrays(xarray,yarray,resultarray);
+ 
     return 0;
 }
