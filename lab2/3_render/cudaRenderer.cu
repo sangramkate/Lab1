@@ -7,6 +7,7 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <driver_functions.h>
+#include "circleBoxTest.cu_inl"
 
 #include "cudaRenderer.h"
 #include "image.h"
@@ -394,30 +395,51 @@ shadePixel(int circleIndex, float2 pixelCenter, float3 p, float4* imagePtr) {
 // Each thread renders a circle.  Since there is no protection to
 // ensure order of update or mutual exclusion on the output image, the
 // resulting image will be incorrect.
-__global__ void kernelRenderCircles(int index, int imageWidth, int imageHeight, int screenMinX, int screenMinY, int screenMaxX, int screenMaxY) {
+__global__ void kernelRenderCircles(int imageWidth, int imageHeight) {
     //TODO: convert short to int
-    
+    //TODO: can direct get width from const params
     float invWidth = 1.f / imageWidth;
     float invHeight = 1.f / imageHeight;
-    int index3 = 3 * index;
-    float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
 
-    int x = blockIdx.x*blockDim.x + threadIdx.x + screenMinX;
-    int y = blockIdx.y*blockDim.y + threadIdx.y + screenMinY;
-    if(x >= screenMaxX) return;
-    if(y >= screenMaxY) return;
-    /*
-    const unsigned int offset = blockIdx.x*blockDim.x + threadIdx.x;
+    for (int index = 0; index < cuConstRendererParams.numCircles; index++) {
+        int index3 = 3 * index;
+        float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
+    //    const unsigned int offset = blockIdx.x*blockDim.x + threadIdx.x;
 
-    if(offset >= (screenMaxX - screenMinX) * (screenMaxY - screenMinY)) return;
+        float rad = cuConstRendererParams.radius[index];
+        // BlockDim = 256 x1, gridDim = 4x4
 
-    int x = (offset % (screenMaxX - screenMinX)) + screenMinX;
-    int y = (offset / (screenMaxX - screenMinX)) + screenMinY;
-    */
-    float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * (y * imageWidth + x)]);
-    float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(x) + 0.5f),
-                                                 invHeight * (static_cast<float>(y) + 0.5f));
-    shadePixel(index, pixelCenterNorm, p, imgPtr);
+
+        int circleInBox = circleInBoxConservative(p.x, p.y, rad, 
+                static_cast<float>(1.f/gridDim.x)*blockIdx.x, static_cast<float>(1.f/gridDim.x)*(blockIdx.x+1), 
+                static_cast<float>(1.f/gridDim.y)*(blockIdx.y+1), static_cast<float>(1.f/gridDim.y)*(blockIdx.y));
+
+        if((threadIdx.x + threadIdx.y)== 0) {
+            printf("Blk : %dx%d, grid: %d %d\n", blockIdx.x, blockIdx.y, gridDim.x, circleInBox);
+            printf("circleInBoxConservative p.x : %f, p.y : %f , rad : %f, %f, %f, %f, %f\n",
+                p.x, p.y, rad, 
+                static_cast<float>(1.f/gridDim.x)*blockIdx.x, static_cast<float>(1.f/gridDim.x)*(blockIdx.x+1), 
+                static_cast<float>(1.f/gridDim.y)*(blockIdx.y+1), static_cast<float>(1.f/gridDim.y)*(blockIdx.y));
+        }
+        if(circleInBox == 0) { continue; }
+
+        /*
+        if((threadIdx.x + threadIdx.y)== 0) {
+            printf("Blk : %d, grid: %d\n", blockIdx.x, gridDim.x);
+        }*/
+
+        for(int tid_x = threadIdx.x ; tid_x < (imageWidth/gridDim.x); tid_x +=blockDim.x) {
+            for(int tid_y = threadIdx.y ; tid_y < (imageHeight/gridDim.y); tid_y +=blockDim.y) {
+                int x = blockIdx.x*(imageWidth/gridDim.x) + tid_x;  
+                int y = blockIdx.y*(imageHeight/gridDim.y) + tid_y;  
+                float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * (y * imageWidth + x)]);
+                float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(x) + 0.5f),
+                                                             invHeight * (static_cast<float>(y) + 0.5f));
+                shadePixel(index, pixelCenterNorm, p, imgPtr);
+            }
+        }
+        __syncthreads(); //TODO: is this even needed? --- but why? 
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -633,52 +655,19 @@ CudaRenderer::render() {
     //dim3 blockDim(256, 1);
     //dim3 gridDim((numCircles + blockDim.x - 1) / blockDim.x);
 
-    for (int i = 0; i < numCircles; i++) {
-        // read position and radius
-        int index3 = 3 * i;
-        float3 p = *(float3*)(&position[index3]);
-        float  rad = radius[i];
 
-        // compute the bounding box of the circle. The bound is in integer
-        // screen coordinates, so it's clamped to the edges of the screen.
-        short imageWidth = image->width;
-        short imageHeight = image->height;
-        short minX = static_cast<short>(imageWidth * (p.x - rad));
-        short maxX = static_cast<short>(imageWidth * (p.x + rad)) + 1;
-        short minY = static_cast<short>(imageHeight * (p.y - rad));
-        short maxY = static_cast<short>(imageHeight * (p.y + rad)) + 1;
+    // compute the bounding box of the circle. The bound is in integer
+    // screen coordinates, so it's clamped to the edges of the screen.
+    short imageWidth = image->width;
+    short imageHeight = image->height;
+    
+    dim3 blockDim(16, 16);
+   // dim3 gridDim((numPixels  + blockDim.x - 1) / blockDim.x);
+    dim3 gridDim(16,16); //dividing it into block -- each block working on a portion of image
 
-        // a bunch of clamps.  Is there a CUDA built-in for this?
-        short screenMinX = (minX > 0) ? ((minX < imageWidth) ? minX : imageWidth) : 0;
-        short screenMaxX = (maxX > 0) ? ((maxX < imageWidth) ? maxX : imageWidth) : 0;
-        short screenMinY = (minY > 0) ? ((minY < imageHeight) ? minY : imageHeight) : 0;
-        short screenMaxY = (maxY > 0) ? ((maxY < imageHeight) ? maxY : imageHeight) : 0;
+    kernelRenderCircles<<<gridDim, blockDim>>>(imageWidth, imageHeight);
+    gpuErrchk(cudaDeviceSynchronize());
 
-        /*
-        float px = position[index3];
-        float py = position[index3+1];
-        float rad = radius[i];
-
-        // compute the bounding box of the circle.  This bounding box
-        // is in normalized coordinates
-        float minX = px - rad;
-        float maxX = px + rad;
-        float minY = py - rad;
-        float maxY = py + rad;
-
-        // convert normalized coordinate bounds to integer screen
-        // pixel bounds.  Clamp to the edges of the screen.
-        int screenMinX = CLAMP(static_cast<int>(minX * image->width), 0, image->width);
-        int screenMaxX = CLAMP(static_cast<int>(maxX * image->width)+1, 0, image->width);
-        int screenMinY = CLAMP(static_cast<int>(minY * image->height), 0, image->height);
-        int screenMaxY = CLAMP(static_cast<int>(maxY * image->height)+1, 0, image->height);
-        */
-        //int numPixels = (screenMaxY - screenMinY) * (screenMaxX - screenMinX);
-        
-        dim3 blockDim(16, 16);
-        dim3 gridDim(((screenMaxX - screenMinX) + blockDim.x - 1) / blockDim.x, ((screenMaxY - screenMinY) + blockDim.y - 1) / blockDim.y);
-
-        kernelRenderCircles<<<gridDim, blockDim>>>(i, imageWidth, imageHeight, screenMinX, screenMinY, screenMaxX, screenMaxY);
-        gpuErrchk(cudaDeviceSynchronize());
-    }
 }
+
+
