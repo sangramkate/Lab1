@@ -410,10 +410,9 @@ __global__ void kernelRenderCircles(int imageWidth, int imageHeight) {
         // BlockDim = 256 x1, gridDim = 4x4
 
 
-        int circleInBox = circleInBox(p.x, p.y, rad, 
+        int circleInBox = circleInBoxConservative(p.x, p.y, rad, 
                 static_cast<float>(1.f/gridDim.x)*blockIdx.x, static_cast<float>(1.f/gridDim.x)*(blockIdx.x+1), 
                 static_cast<float>(1.f/gridDim.y)*(blockIdx.y+1), static_cast<float>(1.f/gridDim.y)*(blockIdx.y));
-
         /*
         if((threadIdx.x + threadIdx.y)== 0) {
             printf("Blk : %dx%d, grid: %d %d\n", blockIdx.x, blockIdx.y, gridDim.x, circleInBox);
@@ -421,8 +420,9 @@ __global__ void kernelRenderCircles(int imageWidth, int imageHeight) {
                 p.x, p.y, rad, 
                 static_cast<float>(1.f/gridDim.x)*blockIdx.x, static_cast<float>(1.f/gridDim.x)*(blockIdx.x+1), 
                 static_cast<float>(1.f/gridDim.y)*(blockIdx.y+1), static_cast<float>(1.f/gridDim.y)*(blockIdx.y));
-        } */
-
+        }
+        */
+        __syncthreads(); //TODO: is this even needed? --- but why? 
         if(circleInBox == 0) { continue; }
 
         /*
@@ -440,7 +440,6 @@ __global__ void kernelRenderCircles(int imageWidth, int imageHeight) {
                 shadePixel(index, pixelCenterNorm, p, imgPtr);
             }
         }
-        __syncthreads(); //TODO: is this even needed? --- but why? 
     }
 }
 
