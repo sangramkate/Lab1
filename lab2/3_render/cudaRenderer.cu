@@ -410,17 +410,19 @@ __global__ void kernelRenderCircles(int imageWidth, int imageHeight) {
         // BlockDim = 256 x1, gridDim = 4x4
 
 
-        int circleInBox = circleInBoxConservative(p.x, p.y, rad, 
+        int circleInBox = circleInBox(p.x, p.y, rad, 
                 static_cast<float>(1.f/gridDim.x)*blockIdx.x, static_cast<float>(1.f/gridDim.x)*(blockIdx.x+1), 
                 static_cast<float>(1.f/gridDim.y)*(blockIdx.y+1), static_cast<float>(1.f/gridDim.y)*(blockIdx.y));
 
+        /*
         if((threadIdx.x + threadIdx.y)== 0) {
             printf("Blk : %dx%d, grid: %d %d\n", blockIdx.x, blockIdx.y, gridDim.x, circleInBox);
             printf("circleInBoxConservative p.x : %f, p.y : %f , rad : %f, %f, %f, %f, %f\n",
                 p.x, p.y, rad, 
                 static_cast<float>(1.f/gridDim.x)*blockIdx.x, static_cast<float>(1.f/gridDim.x)*(blockIdx.x+1), 
                 static_cast<float>(1.f/gridDim.y)*(blockIdx.y+1), static_cast<float>(1.f/gridDim.y)*(blockIdx.y));
-        }
+        } */
+
         if(circleInBox == 0) { continue; }
 
         /*
