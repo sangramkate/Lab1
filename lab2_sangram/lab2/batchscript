@@ -1,0 +1,15 @@
+#!/bin/bash
+#SBATCH -J saxpy           # job name
+#SBATCH -o saxpy.oj expands to  jobID) 
+#SBATCH -N 1              # total number of nodes
+#SBATCH -n 1              # total number of mpi tasks requested
+#SBATCH -p gtx    # queue (partition) — normal, development, etc.
+#SBATCH -t 01:30:00        # run time (hh:mm:ss) - 1.5 hours
+#SBATCH —mail-user=sangram.kate@utexas.edu
+#SBATCH —mail-type=begin  # email me when the job starts
+#SBATCH —mail-type=end    # email me when the job finishes
+#SBATCH -A EE382N-20
+
+module load cuda
+ ./cudaSaxpy             # run the cudaSaxpy on compute node
+nvprof ./cudaSaxpy # run the executable with the nvprof profiling tool for performance analysis

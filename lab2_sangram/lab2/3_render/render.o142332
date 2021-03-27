@@ -1,0 +1,109 @@
+Rendering to 768x768 image
+Loaded scene with 3 circles
+---------------------------------------------------------
+Initializing CUDA for CudaRenderer
+Found 4 CUDA devices
+Device 0: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 1: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 2: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 3: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+---------------------------------------------------------
+
+Running benchmark, 4 frames, beginning at frame 0 ...
+Dumping frames to rgbtest_cuda_xxx.ppm
+Copying image data from device
+Wrote image file rgbtest_cuda_0000.ppm
+Copying image data from device
+Wrote image file rgbtest_cuda_0001.ppm
+Copying image data from device
+Wrote image file rgbtest_cuda_0002.ppm
+Copying image data from device
+Wrote image file rgbtest_cuda_0003.ppm
+Clear:    0.0630 ms
+Advance:  0.0019 ms
+Render:   0.1012 ms
+Total:    0.1661 ms
+File IO:  45.5869 ms
+
+Overall:  0.1832 sec (note units are seconds)
+
+--------------
+Running tests on c227-110.maverick2.tacc.utexas.edu
+
+--------------
+
+Scene : rgb
+Correctness passed!
+Your time : 0.2005
+Reference Time: 0.2178
+
+Scene : rgby
+Correctness passed!
+
+Scene : rand10k
+Correctness passed!
+Your time : 114.5142
+Reference Time: 2.2024
+
+Scene : rand100k
+Correctness passed!
+Your time : 1150.9266
+Reference Time: 21.5130
+
+Scene : biglittle
+Correctness passed!
+Your time : 247.0567
+Reference Time: 15.3246
+
+Scene : littlebig
+Correctness passed!
+
+Scene : pattern
+Correctness passed!
+Your time : 13.3303
+Reference Time: 0.3085
+
+Scene : bouncingballs
+Correctness passed!
+
+Scene : hypnosis
+Correctness passed!
+
+Scene : fireworks
+Correctness passed!
+
+Scene : snow
+Correctness passed!
+
+Scene : snowsingle
+Correctness passed!
+Your time : 1071.3032
+Reference Time: 12.0083
+
+------------
+Score table:
+------------
+-------------------------------------------------------------------------
+| Scene Name      | Fast Time (Tf)  | Your Time (T)   | Score           |
+-------------------------------------------------------------------------
+| rgb             | 0.2178          | 0.2005          | 12              |
+| rand10k         | 2.2024          | 114.5142        | 2               |
+| rand100k        | 21.5130         | 1150.9266       | 2               |
+| pattern         | 0.3085          | 13.3303         | 2               |
+| snowsingle      | 12.0083         | 1071.3032       | 2               |
+| biglittle       | 15.3246         | 247.0567        | 2               |
+-------------------------------------------------------------------------
+|                                   | Total score:    | 22/72           |
+-------------------------------------------------------------------------
