@@ -1,0 +1,93 @@
+Rendering to 768x768 image
+Loaded scene with 3 circles
+---------------------------------------------------------
+Initializing CUDA for CudaRenderer
+Found 0 CUDA devices
+---------------------------------------------------------
+
+Running benchmark, 4 frames, beginning at frame 0 ...
+Dumping frames to rgbtest_cuda_xxx.ppm
+Copying image data from device
+Wrote image file rgbtest_cuda_0000.ppm
+Copying image data from device
+Wrote image file rgbtest_cuda_0001.ppm
+Copying image data from device
+Wrote image file rgbtest_cuda_0002.ppm
+Copying image data from device
+Wrote image file rgbtest_cuda_0003.ppm
+Clear:    0.0041 ms
+Advance:  0.0001 ms
+Render:   0.0005 ms
+Total:    0.0047 ms
+File IO:  38.7820 ms
+
+Overall:  0.1552 sec (note units are seconds)
+
+--------------
+Running tests on c227-107.maverick2.tacc.utexas.edu
+
+--------------
+
+Scene : rgb
+Correctness passed!
+Your time : 0.0037
+Reference Time: 0.0011
+
+Scene : rgby
+Correctness passed!
+
+Scene : rand10k
+Correctness passed!
+Your time : 0.7164
+Reference Time: 0.0014
+
+Scene : rand100k
+Correctness failed ... Check ./logs/correctness_rand100k.log
+Your time : 7.0015
+Reference Time: 0.0012
+
+Scene : biglittle
+Correctness failed ... Check ./logs/correctness_biglittle.log
+Your time : 0.7566
+Reference Time: 0.0010
+
+Scene : littlebig
+Correctness failed ... Check ./logs/correctness_littlebig.log
+
+Scene : pattern
+Correctness failed ... Check ./logs/correctness_pattern.log
+Your time : 0.0912
+Reference Time: 0.0011
+
+Scene : bouncingballs
+Correctness failed ... Check ./logs/correctness_bouncingballs.log
+
+Scene : hypnosis
+Correctness failed ... Check ./logs/correctness_hypnosis.log
+
+Scene : fireworks
+Correctness failed ... Check ./logs/correctness_fireworks.log
+
+Scene : snow
+Correctness failed ... Check ./logs/correctness_snow.log
+
+Scene : snowsingle
+Correctness failed ... Check ./logs/correctness_snowsingle.log
+Your time : 7.7129
+Reference Time: 0.0011
+
+------------
+Score table:
+------------
+-------------------------------------------------------------------------
+| Scene Name      | Fast Time (Tf)  | Your Time (T)   | Score           |
+-------------------------------------------------------------------------
+| rgb             | 0.0011          | 0.0037          | 5               |
+| rand10k         | 0.0014          | 0.7164          | 2               |
+| rand100k        | 0.0012          | 7.0015 (F)      | 0               |
+| pattern         | 0.0011          | 0.0912 (F)      | 0               |
+| snowsingle      | 0.0011          | 7.7129 (F)      | 0               |
+| biglittle       | 0.0010          | 0.7566 (F)      | 0               |
+-------------------------------------------------------------------------
+|                                   | Total score:    | 7/72            |
+-------------------------------------------------------------------------

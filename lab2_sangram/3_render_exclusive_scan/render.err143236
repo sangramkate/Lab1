@@ -1,0 +1,3 @@
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  __copy::trivial_device_copy H->D: failed: an illegal memory access was encountered
+sh: line 1:  8281 Aborted                 (core dumped) ./render -c snow -s 1024 > ./logs/correctness_snow.log

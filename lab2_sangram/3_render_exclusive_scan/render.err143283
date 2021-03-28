@@ -1,0 +1,15 @@
+/tmp/slurmd/job143283/slurm_script: line 16: 16373 Segmentation fault      (core dumped) ./render -r cuda -b 0:4 -f rgbtest_cuda -s 768 rgb
+sh: line 1: 16392 Segmentation fault      (core dumped) ./render -c rgb -s 1024 > ./logs/correctness_rgb.log
+sh: line 1: 16425 Segmentation fault      (core dumped) ./render -c rgby -s 1024 > ./logs/correctness_rgby.log
+sh: line 1: 16436 Segmentation fault      (core dumped) ./render -c rand10k -s 1024 > ./logs/correctness_rand10k.log
+sh: line 1: 16470 Segmentation fault      (core dumped) ./render -c rand100k -s 1024 > ./logs/correctness_rand100k.log
+sh: line 1: 16507 Segmentation fault      (core dumped) ./render -c biglittle -s 1024 > ./logs/correctness_biglittle.log
+sh: line 1: 16546 Segmentation fault      (core dumped) ./render -c littlebig -s 1024 > ./logs/correctness_littlebig.log
+sh: line 1: 16565 Segmentation fault      (core dumped) ./render -c pattern -s 1024 > ./logs/correctness_pattern.log
+sh: line 1: 16598 Segmentation fault      (core dumped) ./render -c bouncingballs -s 1024 > ./logs/correctness_bouncingballs.log
+sh: line 1: 16609 Segmentation fault      (core dumped) ./render -c hypnosis -s 1024 > ./logs/correctness_hypnosis.log
+sh: line 1: 16619 Segmentation fault      (core dumped) ./render -c fireworks -s 1024 > ./logs/correctness_fireworks.log
+terminate called after throwing an instance of 'thrust::system::system_error'
+  what():  __copy::trivial_device_copy H->D: failed: an illegal memory access was encountered
+sh: line 1: 16629 Aborted                 (core dumped) ./render -c snow -s 1024 > ./logs/correctness_snow.log
+sh: line 1: 16639 Segmentation fault      (core dumped) ./render -c snowsingle -s 1024 > ./logs/correctness_snowsingle.log

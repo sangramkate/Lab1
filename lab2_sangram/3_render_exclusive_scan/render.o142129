@@ -1,0 +1,93 @@
+Rendering to 768x768 image
+Loaded scene with 3 circles
+---------------------------------------------------------
+Initializing CUDA for CudaRenderer
+Found 0 CUDA devices
+---------------------------------------------------------
+
+Running benchmark, 4 frames, beginning at frame 0 ...
+Dumping frames to rgbtest_cuda_xxx.ppm
+Copying image data from device
+Wrote image file rgbtest_cuda_0000.ppm
+Copying image data from device
+Wrote image file rgbtest_cuda_0001.ppm
+Copying image data from device
+Wrote image file rgbtest_cuda_0002.ppm
+Copying image data from device
+Wrote image file rgbtest_cuda_0003.ppm
+Clear:    0.0053 ms
+Advance:  0.0001 ms
+Render:   0.0006 ms
+Total:    0.0061 ms
+File IO:  23.6745 ms
+
+Overall:  0.0948 sec (note units are seconds)
+
+--------------
+Running tests on c227-107.maverick2.tacc.utexas.edu
+
+--------------
+
+Scene : rgb
+Correctness passed!
+Your time : 0.0035
+Reference Time: 0.0011
+
+Scene : rgby
+Correctness passed!
+
+Scene : rand10k
+Correctness passed!
+Your time : 0.7374
+Reference Time: 0.0011
+
+Scene : rand100k
+Correctness passed!
+Your time : 7.1506
+Reference Time: 0.0012
+
+Scene : biglittle
+Correctness passed!
+Your time : 0.7591
+Reference Time: 0.0012
+
+Scene : littlebig
+Correctness passed!
+
+Scene : pattern
+Correctness passed!
+Your time : 0.1010
+Reference Time: 0.0015
+
+Scene : bouncingballs
+Correctness passed!
+
+Scene : hypnosis
+Correctness passed!
+
+Scene : fireworks
+Correctness passed!
+
+Scene : snow
+Correctness passed!
+
+Scene : snowsingle
+Correctness passed!
+Your time : 6.7714
+Reference Time: 0.0014
+
+------------
+Score table:
+------------
+-------------------------------------------------------------------------
+| Scene Name      | Fast Time (Tf)  | Your Time (T)   | Score           |
+-------------------------------------------------------------------------
+| rgb             | 0.0011          | 0.0035          | 6               |
+| rand10k         | 0.0011          | 0.7374          | 2               |
+| rand100k        | 0.0012          | 7.1506          | 2               |
+| pattern         | 0.0015          | 0.1010          | 2               |
+| snowsingle      | 0.0014          | 6.7714          | 2               |
+| biglittle       | 0.0012          | 0.7591          | 2               |
+-------------------------------------------------------------------------
+|                                   | Total score:    | 16/72           |
+-------------------------------------------------------------------------

@@ -1,0 +1,109 @@
+Rendering to 768x768 image
+Loaded scene with 3 circles
+---------------------------------------------------------
+Initializing CUDA for CudaRenderer
+Found 4 CUDA devices
+Device 0: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 1: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 2: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 3: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+---------------------------------------------------------
+
+Running benchmark, 4 frames, beginning at frame 0 ...
+Dumping frames to rgbtest_cuda_xxx.ppm
+Copying image data from device
+Wrote image file rgbtest_cuda_0000.ppm
+Copying image data from device
+Wrote image file rgbtest_cuda_0001.ppm
+Copying image data from device
+Wrote image file rgbtest_cuda_0002.ppm
+Copying image data from device
+Wrote image file rgbtest_cuda_0003.ppm
+Clear:    0.0589 ms
+Advance:  0.0011 ms
+Render:   0.0499 ms
+Total:    0.1099 ms
+File IO:  68.3633 ms
+
+Overall:  0.2740 sec (note units are seconds)
+
+--------------
+Running tests on c227-116.maverick2.tacc.utexas.edu
+
+--------------
+
+Scene : rgb
+Correctness failed ... Check ./logs/correctness_rgb.log
+Your time : 0.1262
+Reference Time: 0.2062
+
+Scene : rgby
+Correctness failed ... Check ./logs/correctness_rgby.log
+
+Scene : rand10k
+Correctness failed ... Check ./logs/correctness_rand10k.log
+Your time : 510.9902
+Reference Time: 2.1986
+
+Scene : rand100k
+Correctness failed ... Check ./logs/correctness_rand100k.log
+Your time : 5134.3366
+Reference Time: 21.2688
+
+Scene : biglittle
+Correctness failed ... Check ./logs/correctness_biglittle.log
+Your time : 282.0186
+Reference Time: 15.1525
+
+Scene : littlebig
+Correctness failed ... Check ./logs/correctness_littlebig.log
+
+Scene : pattern
+Correctness failed ... Check ./logs/correctness_pattern.log
+Your time : 69.9783
+Reference Time: 0.3081
+
+Scene : bouncingballs
+Correctness failed ... Check ./logs/correctness_bouncingballs.log
+
+Scene : hypnosis
+Correctness failed ... Check ./logs/correctness_hypnosis.log
+
+Scene : fireworks
+Correctness failed ... Check ./logs/correctness_fireworks.log
+
+Scene : snow
+Correctness passed!
+
+Scene : snowsingle
+Correctness failed ... Check ./logs/correctness_snowsingle.log
+Your time : 6001.0068
+Reference Time: 12.0211
+
+------------
+Score table:
+------------
+-------------------------------------------------------------------------
+| Scene Name      | Fast Time (Tf)  | Your Time (T)   | Score           |
+-------------------------------------------------------------------------
+| rgb             | 0.2062          | 0.1262 (F)      | 0               |
+| rand10k         | 2.1986          | 510.9902 (F)    | 0               |
+| rand100k        | 21.2688         | 5134.3366 (F)   | 0               |
+| pattern         | 0.3081          | 69.9783 (F)     | 0               |
+| snowsingle      | 12.0211         | 6001.0068 (F)   | 0               |
+| biglittle       | 15.1525         | 282.0186 (F)    | 0               |
+-------------------------------------------------------------------------
+|                                   | Total score:    | 0/72            |
+-------------------------------------------------------------------------
