@@ -1,0 +1,11 @@
+Rendering to 1024x1024 image
+Loaded data for 100000 circles from snow.par
+Loaded scene with 100000 circles
+Loaded data for 100000 circles from snow.par
+Loaded scene with 100000 circles
+---------------------------------------------------------
+Initializing CUDA for CudaRenderer
+Found 0 CUDA devices
+---------------------------------------------------------
+
+Running benchmark, 1 frames, beginning at frame 0 ...
