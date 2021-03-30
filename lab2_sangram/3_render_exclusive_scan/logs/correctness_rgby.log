@@ -1,0 +1,96 @@
+Rendering to 1024x1024 image
+Loaded scene with 4 circles
+Loaded scene with 4 circles
+---------------------------------------------------------
+Initializing CUDA for CudaRenderer
+Found 4 CUDA devices
+Device 0: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 1: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 2: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+Device 3: GeForce GTX 1080 Ti
+   SMs:        28
+   Global mem: 11178 MB
+   CUDA Cap:   6.1
+---------------------------------------------------------
+
+Running benchmark, 1 frames, beginning at frame 0 ...
+numPairs=5
+--------------- pairs = 4
+---------------buffer = 0
+---------------output array = 0
+--------------- pairs = 4
+---------------buffer = 1
+---------------output array = 1
+--------------- pairs = 4
+---------------buffer = 2
+---------------output array = 2
+--------------- pairs = 4
+---------------buffer = 3
+---------------output array = 3
+num=4
+num=4
+goint into else
+--------------- pairs = 2
+---------------buffer = 2
+---------------output array = 2
+--------------- pairs = 2
+---------------buffer = 3
+---------------output array = 3
+--------------- pairs = 2
+---------------buffer = -1
+---------------output array = 1
+--------------- pairs = 2
+---------------buffer = -1
+---------------output array = 0
+num=2
+goint into else
+--------------- pairs = 0
+---------------buffer = -1
+---------------output array = 1
+--------------- pairs = 0
+---------------buffer = -1
+---------------output array = 0
+--------------- pairs = 0
+---------------buffer = -1
+---------------output array = 0
+--------------- pairs = 0
+---------------buffer = -1
+---------------output array = 0
+num=0
+goint into else
+--------------- pairs = 0
+---------------buffer = -1
+---------------output array = 1
+--------------- pairs = 0
+---------------buffer = -1
+---------------output array = 0
+--------------- pairs = 0
+---------------buffer = -1
+---------------output array = 0
+--------------- pairs = 0
+---------------buffer = -1
+---------------output array = 0
+num=0
+number of circles in boxes:
+ box[0]= 0 
+ box[1]= 4 
+ box[2]= 6 
+ box[3]= 6 
+ box[4]= 6 
+Copying image data from device
+Mismatch detected at pixel [61][251], value = 1.000000, expected 0.500000 for color Green
+Mismatch detected at pixel [61][251], value = 1.000000, expected 0.500000 for color Blue
+Mismatch detected at pixel [61][252], value = 1.000000, expected 0.500000 for color Green
+Mismatch detected at pixel [61][252], value = 1.000000, expected 0.500000 for color Blue
+Mismatch detected at pixel [61][253], value = 1.000000, expected 0.500000 for color Green
+Mismatch detected at pixel [61][253], value = 1.000000, expected 0.500000 for color Blue
+ERROR : Mismatch detected between reference and actual

@@ -1,0 +1,69 @@
+
+--------------
+Running tests on c227-114.maverick2.tacc.utexas.edu
+
+--------------
+
+Scene : rgb
+Correctness failed ... Check ./logs/correctness_rgb.log
+Your time : 
+Reference Time: 0.2058
+
+Scene : rgby
+Correctness failed ... Check ./logs/correctness_rgby.log
+
+Scene : rand10k
+Correctness failed ... Check ./logs/correctness_rand10k.log
+Your time : 
+Reference Time: 2.7958
+
+Scene : rand100k
+Correctness failed ... Check ./logs/correctness_rand100k.log
+Your time : 
+Reference Time: 26.4178
+
+Scene : biglittle
+Correctness failed ... Check ./logs/correctness_biglittle.log
+Your time : 
+Reference Time: 18.8827
+
+Scene : littlebig
+Correctness failed ... Check ./logs/correctness_littlebig.log
+
+Scene : pattern
+Correctness failed ... Check ./logs/correctness_pattern.log
+Your time : 
+Reference Time: 0.3667
+
+Scene : bouncingballs
+Correctness failed ... Check ./logs/correctness_bouncingballs.log
+
+Scene : hypnosis
+Correctness failed ... Check ./logs/correctness_hypnosis.log
+
+Scene : fireworks
+Correctness failed ... Check ./logs/correctness_fireworks.log
+
+Scene : snow
+Correctness failed ... Check ./logs/correctness_snow.log
+
+Scene : snowsingle
+Correctness failed ... Check ./logs/correctness_snowsingle.log
+Your time : 
+Reference Time: 14.8871
+
+------------
+Score table:
+------------
+-------------------------------------------------------------------------
+| Scene Name      | Fast Time (Tf)  | Your Time (T)   | Score           |
+-------------------------------------------------------------------------
+| rgb             | 0.2058          |  (F)            | 0               |
+| rand10k         | 2.7958          |  (F)            | 0               |
+| rand100k        | 26.4178         |  (F)            | 0               |
+| pattern         | 0.3667          |  (F)            | 0               |
+| snowsingle      | 14.8871         |  (F)            | 0               |
+| biglittle       | 18.8827         |  (F)            | 0               |
+-------------------------------------------------------------------------
+|                                   | Total score:    | 0/72            |
+-------------------------------------------------------------------------

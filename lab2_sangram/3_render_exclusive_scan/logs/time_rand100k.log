@@ -24,9 +24,9 @@ WARNING: You're not running on a fast GPU, please consider using NVIDIA GTX 480,
 ---------------------------------------------------------
 
 Running benchmark, 4 frames, beginning at frame 0 ...
-Clear:    0.0564 ms
+Clear:    0.0561 ms
 Advance:  0.0008 ms
-Render:   26.5096 ms
-Total:    26.5668 ms
+Render:   26.4556 ms
+Total:    26.5126 ms
 
-Overall:  0.1064 sec (note units are seconds)
+Overall:  0.1061 sec (note units are seconds)

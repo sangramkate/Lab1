@@ -1,0 +1,13 @@
+/tmp/slurmd/job143841/slurm_script: line 16: 20152 Segmentation fault      (core dumped) ./render -r cuda -b 0:4 -f rgbtest_cuda -s 768 rgb
+sh: line 1: 20184 Segmentation fault      (core dumped) ./render -c rgb -s 1024 > ./logs/correctness_rgb.log
+sh: line 1: 20218 Segmentation fault      (core dumped) ./render -c rgby -s 1024 > ./logs/correctness_rgby.log
+sh: line 1: 20229 Segmentation fault      (core dumped) ./render -c rand10k -s 1024 > ./logs/correctness_rand10k.log
+sh: line 1: 20263 Segmentation fault      (core dumped) ./render -c rand100k -s 1024 > ./logs/correctness_rand100k.log
+sh: line 1: 20300 Segmentation fault      (core dumped) ./render -c biglittle -s 1024 > ./logs/correctness_biglittle.log
+sh: line 1: 20342 Segmentation fault      (core dumped) ./render -c littlebig -s 1024 > ./logs/correctness_littlebig.log
+sh: line 1: 20367 Segmentation fault      (core dumped) ./render -c pattern -s 1024 > ./logs/correctness_pattern.log
+sh: line 1: 20400 Segmentation fault      (core dumped) ./render -c bouncingballs -s 1024 > ./logs/correctness_bouncingballs.log
+sh: line 1: 20410 Segmentation fault      (core dumped) ./render -c hypnosis -s 1024 > ./logs/correctness_hypnosis.log
+sh: line 1: 20421 Segmentation fault      (core dumped) ./render -c fireworks -s 1024 > ./logs/correctness_fireworks.log
+sh: line 1: 20431 Segmentation fault      (core dumped) ./render -c snow -s 1024 > ./logs/correctness_snow.log
+sh: line 1: 20441 Segmentation fault      (core dumped) ./render -c snowsingle -s 1024 > ./logs/correctness_snowsingle.log

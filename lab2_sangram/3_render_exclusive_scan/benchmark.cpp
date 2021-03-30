@@ -40,11 +40,10 @@ static void compare_images(const Image* ref_image, const Image* cuda_image) {
         }
 
         // Ignore 5 errors - may come up because of rounding in distance calculation
-        /*
         if (mismatch_count > 5) {
             printf ("ERROR : Mismatch detected between reference and actual\n");
             exit (1);
-        }*/
+        }
 
     }
 
