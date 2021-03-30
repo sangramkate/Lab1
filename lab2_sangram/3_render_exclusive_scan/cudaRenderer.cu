@@ -32,13 +32,28 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=t
 //Predicate functor
 struct is_not_zero
 {
-    __host__ __device__
+    __host__  __device__
         bool operator()(const int x)
     {
         return (x != 0);
     }
 };
 
+__global__ void
+update_result_arr(int N, int* output) {
+    output[N-1] = 0; 
+}
+static inline int nextPow2(int n)
+{
+    n--;
+    n |= n >> 1;
+    n |= n >> 2;
+    n |= n >> 4;
+    n |= n >> 8;
+    n |= n >> 16;
+    n++;
+    return n;
+}
 ////////////////////////////////////////////////////////////////////////////////////////
 // Putting all the cuda kernels here
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -412,34 +427,189 @@ __global__ void  checkCircleBlockPair(int* circleBlockArray,int numCircles, int 
 
   int circleId = blockIdx.x * blockDim.x + threadIdx.x;
   int block = blockIdx.y * blockDim.y + threadIdx.y;
-
   if((circleId < numCircles) && (block < numBlocks)){
       int index3 = circleId * 3;
       float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
       float rad = cuConstRendererParams.radius[circleId];
       circleBlockArray[(block * numCircles) + circleId] = circleInBoxConservative(p.x, p.y, rad, 
-          static_cast<float>(1.f/blocksPerRow)*threadIdx.y, static_cast<float>(1.f/blocksPerRow)*(threadIdx.y+1), 
+          static_cast<float>(1.f/blocksPerRow)*block, static_cast<float>(1.f/blocksPerRow)*(block+1), 
           static_cast<float>(1.f/blocksPerRow)*(blockIdx.y+1), static_cast<float>(1.f/blocksPerRow)*(blockIdx.y));
+     // printf("circleBlockArray[%d]=%d\n",(block * numCircles) + circleId,circleBlockArray[(block * numCircles) + circleId]);
   }
 }
-/*
-__global__ ArrayCompact(int* circleBlockArray,int numCircles, int numBlocks,  int BlockPerRow ,int* circleBlockIdx, int* circlePerBlock  ){
 
-  int blockId = blockIdx.x * blockDim.x + threadIdx.x;
+__global__ void
+upsweep_kernel(int N, int twod, int twod1, int* output) {
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if ((index < N) && ((index % twod1) == 0)) {
+        output[index + twod1 - 1] += output[index + twod -1];    
+    }
+}
 
-  if(blockId < numBlocks){
-      thrust::device_vector<int> d_src(circleBlockArray);
-      thrust::device_vector<int> d_circleBlockIdx(circleBlockIdx);
-      thrust::device_vector<int> d_circlePerBlock(circlePerBlock);
-      d_src.resize(numCircles);
-      thrust::device_vector<int> d_res(numCircles);
-      auto result_end = thrust::copy_if(d_src.begin().d_src.end(),d_res.begin(),is_not_zero());      
-      thrust::copy(d_res.begin(),result_end,d_circleBlockIdx);
-      d_circlePerBlock[blockId] = result_end - d_res.begin()+1;
-      
+
+__global__ void
+downsweep_kernel(int N, int twod, int twod1, int* output) {
+
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if ((index < N) && ((index % twod1) == 0)) {
+        int t = output[index + twod - 1];
+         output[index+twod-1] = output[index+twod1-1];
+         output[index+twod1-1] += t; // change twod1 to twod to reverse prefix sum.
+    }
+}
+
+__global__ void
+upsweep_small_kernel(int N, int* output) {
+    int index = threadIdx.x;
+
+    int num_threads = 1024;
+    for(int i=N/1024; i<N; i*=2) {
+        if(index < num_threads) {
+            output[i*index + i - 1] += output[i*index + i/2 - 1];
+        }
+        num_threads /= 2;
+        __syncthreads();
+    }
+}
+
+__global__ void print_kernel(int* output, int N) {
+	for(int i=0; i< N; i++) {
+		printf("output[%d] = %d\n", i, output[i]);
+	}
+}
+
+void exclusive_scan(int* device_start, int length, int* device_result)
+{
+    const int threadsPerBlock = 256; // change this if necessary
+    int N = nextPow2(length);
+    gpuErrchk(cudaDeviceSynchronize());
+    //print_kernel<<<1,1>>>(device_result, N);
+    for(int twod=1; twod<N; twod*=2)  {
+        int twod1 = twod*2;
+        //printf("twod=%d\n",twod);
+        upsweep_kernel<<<(N + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock>>>(N, twod, twod1, device_result); 
+        gpuErrchk(cudaDeviceSynchronize());
+    }
+
+    //upsweep_small_kernel<<<1, 1024>>>(N, device_result); 
+    gpuErrchk(cudaDeviceSynchronize());
+
+    //device_result[N-1] = 0;
+    update_result_arr<<<1, 1>>>(N, device_result);
+    gpuErrchk(cudaDeviceSynchronize());
+
+
+    for(int twod=N/2; twod >=1; twod/=2) {
+        int twod1 = twod*2 ;
+        downsweep_kernel<<<(N + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock>>>(N, twod, twod1, device_result); 
+        gpuErrchk(cudaDeviceSynchronize());
+    }
+
+    //gpuErrchk(cudaDeviceSynchronize());
+    //print_kernel<<<1,1>>>(device_result, N);
+
+}
+
+
+__global__ void
+process_repeat_kernel(int N, int* output, int* predicate) {
+
+    // compute overall index from dev_offsetition of thread in current block,
+    // and given the block we are in
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (index < N) {
+//	printf("predicate[%d]=%d\n", index, predicate[index]);
+        if(predicate[index] != predicate[index + 1]) {
+            output[predicate[index]] = index;
+        }
+    }
+}
+
+void cudaScan(int* inarray, int length, int* resultarray)
+{
+    int rounded_length = nextPow2(length);
+    int threadsPerBlock = 256;
+    int* device_out = NULL;
+    int* in_array = NULL;
+
+    gpuErrchk(cudaDeviceSynchronize());
+    gpuErrchk(cudaMalloc(&in_array,rounded_length * sizeof(int)));
+    gpuErrchk(cudaMemset(in_array,0,rounded_length * sizeof(int)));
+    gpuErrchk(cudaMemcpy(in_array,inarray,sizeof(int)*length,cudaMemcpyDeviceToDevice));
+    gpuErrchk(cudaMalloc(&device_out,rounded_length * sizeof(int)));
+    gpuErrchk(cudaMemset(device_out,0,rounded_length * sizeof(int)));
+    exclusive_scan(in_array, length, inarray);
+    // Wait for any work left over to be completed.
+    gpuErrchk(cudaDeviceSynchronize());
+    process_repeat_kernel<<<(rounded_length + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock>>>(rounded_length, resultarray, inarray);
+    cudaFree(in_array);
+    cudaFree(device_out);
+    gpuErrchk(cudaDeviceSynchronize());
+}
+
+__global__ void sum(int* input)
+{
+	const int tid = threadIdx.x;
+
+	auto step_size = 1;
+	int number_of_threads = blockDim.x;
+
+	while (number_of_threads > 0)
+	{
+		if (tid < number_of_threads) // still alive?
+		{
+			const auto fst = tid * step_size * 2;
+			const auto snd = fst + step_size;
+			input[fst] += input[snd];
+		}
+
+		step_size <<= 1; 
+		number_of_threads >>= 1;
+	}
+}
+
+__global__ void copyVal (int* outputArray, int* buffer, int length, int* pairs){
+  
+  *pairs = length;
+  for(int i=0;i<length;i++){
+    if(buffer[i]== -1){
+      *pairs = i;
+      break;
+    }
+    else{
+      outputArray[i] = buffer[i];
+    }
+  }
+  
+  for(int i=0;i<length;i++){
+      printf("--------------- pairs = %d\n",*pairs);
+      printf("---------------buffer = %d\n",buffer[i]);
+      printf("---------------output array = %d\n",outputArray[i]);
   }
 }
-*/
+
+int fillPairs ( int* predicateArray, int length, int* outputArray){
+  int* buffer;
+  int* input_buff;
+  gpuErrchk(cudaDeviceSynchronize());
+  cudaMalloc(&input_buff,length * sizeof(int));
+  cudaMemcpy(input_buff,predicateArray,sizeof(int)*length,cudaMemcpyDeviceToDevice);
+  cudaMalloc(&buffer,length * sizeof(int));
+  cudaMemset(buffer,-1,length * sizeof(int));
+  
+  int* pairs;
+  cudaMallocManaged(&pairs,sizeof(int));
+  cudaScan(input_buff,length,buffer);
+  gpuErrchk(cudaDeviceSynchronize());
+  copyVal<<<1,1>>>(outputArray,buffer,length,pairs);
+  cudaDeviceSynchronize();
+  cudaFree(input_buff);
+  cudaFree(buffer);
+  gpuErrchk(cudaDeviceSynchronize());
+  return *pairs; 
+}
 
 __global__ void  createIndexArray(int* circleBlockArray,int numCircles, int numBlocks){
 
@@ -453,73 +623,111 @@ __global__ void  createIndexArray(int* circleBlockArray,int numCircles, int numB
 
 void 
 CudaRenderer::circleInBoxTest(int numCircles, int numBlocks, int blocksPerRow){
-   dim3 blockDim(16,16);
+   dim3 blockDim(blocksPerRow,blocksPerRow);
    dim3 gridDim(((numCircles +blockDim.x-1)/blockDim.x),((numBlocks +blockDim.y-1)/blockDim.y));
 
-  // int* circleBlockArray;
-  // int* circlePerBlock;
-
-   cudaMalloc(&circleBlockArray,sizeof(int)*numCircles*numBlocks);
-   cudaMalloc(&circlePerBlock,sizeof(int)*(numBlocks+1));
+  //  thrust::device_ptr<int> d_circleBlockArray = thrust::device_malloc<int>(numBlocks * numCircles);
+  //  thrust::device_ptr<int> d_circlePerBlock = thrust::device_malloc<int>(numBlocks);
+  //  circleBlockArray = d_circleBlockArray.get();
+   // circlePerBlock = d_circlePerBlock.get();
+ 
+  // gpuErrchk(cudaMalloc(&circleBlockArray,sizeof(int)*numCircles*numBlocks));
+    cudaMalloc(&circleBlockArray,sizeof(int)*(numBlocks*numCircles));
    
+   int* host_circlePerBlock = (int*)malloc(sizeof(int)*(numBlocks+1));
    checkCircleBlockPair<<<gridDim,blockDim>>>(circleBlockArray, numCircles, numBlocks, blocksPerRow);
    gpuErrchk(cudaDeviceSynchronize());
 
-   int numPairs = thrust::reduce(thrust::device, circleBlockArray, circleBlockArray+(numBlocks*numCircles),0);
-   printf("numPairs= %d\n", numPairs); 
-   cudaMalloc(&circleBlockIdx,sizeof(int)*numPairs);
-    
-   createIndexArray<<<gridDim,blockDim>>>(circleBlockArray, numCircles, numBlocks);
+   //thrust::device_ptr<int> t_circleBlockArray = thrust::device_pointer_cast(circleBlockArray);
+   //thrust::device_ptr<int> t_circleBlockArray_end = thrust::device_pointer_cast(circleBlockArray );
+   int * copy_array;
+   cudaMalloc(&copy_array,sizeof(int)*(numBlocks*numCircles));
+   cudaMemcpy(copy_array,circleBlockArray,sizeof(int)*(numBlocks*numCircles),cudaMemcpyDeviceToDevice);  
+   sum<<< 1,numCircles*numBlocks/2 >>>(copy_array);
    gpuErrchk(cudaDeviceSynchronize());
+   int* num = (int*) malloc(sizeof(int));
+   cudaMemcpy(num,copy_array,sizeof(int),cudaMemcpyDeviceToHost);
+   cudaFree(copy_array);
+   
+   int numPairs = *num;   //thrust::reduce(t_circleBlockArray, t_circleBlockArray+(numBlocks * numCircles),0);
+   printf("numPairs=%d\n",numPairs);
+  // int numPairs = thrust::reduce(d_circleBlockArray.get(), d_circleBlockArray.get()+(numBlocks * numCircles),0);
+  // printf("numPairs= %d\n", numPairs); 
+ 
+   //thrust::device_ptr<int> d_circleBlockIdx = thrust::device_malloc<int>(numPairs);
+   
+   cudaMalloc(&circleBlockIdx,sizeof(int)*numPairs);
+   //cudaMalloc(&circleBlockIdx,sizeof(int)*numBlocks * numCircles);
+    
+   //createIndexArray<<<gridDim,blockDim>>>(circleBlockArray, numCircles, numBlocks);
+   //gpuErrchk(cudaDeviceSynchronize());
   
-   thrust::device_ptr<int> t_circlePerBlock(circlePerBlock);
-   thrust::device_vector<int> d_circlePerBlock(t_circlePerBlock, t_circlePerBlock + numBlocks+1);
+ //  thrust::device_ptr<int> t_circlePerBlock(circlePerBlock);
+  // thrust::device_vector<int> d_circlePerBlock(t_circlePerBlock, t_circlePerBlock + numBlocks+1);
   
+   //thrust::device_ptr<int> d_res = thrust::device_malloc<int>(numCircles);
+
    for(int i=0; i < numBlocks; i++){
      if(i==0){
 
-         thrust::device_ptr<int> t_circleBlockArray(circleBlockArray);
-         thrust::device_vector<int> d_src (t_circleBlockArray, t_circleBlockArray+ numCircles);
+         //thrust::device_ptr<int> t_circleBlockArray = thrust::device_pointer_cast(circleBlockArray);
+         //thrust::device_vector<int> d_src (t_circleBlockArray, t_circleBlockArray+ numCircles);
 
-	 thrust::device_vector<int> d_res(numCircles);
-         auto result_end = thrust::copy_if(d_src.begin(), d_src.end(),d_res.begin(),is_not_zero());
-         int* start_ptr = thrust::raw_pointer_cast(&d_res[0]);
-         int* end_ptr = thrust::raw_pointer_cast(&result_end[0]);
-         size_t num = (end_ptr - start_ptr+ 1);
+         gpuErrchk(cudaDeviceSynchronize());
+         auto num = fillPairs(circleBlockArray,numCircles,circleBlockIdx);
+         gpuErrchk(cudaDeviceSynchronize());
+         //auto num = fillPairs(d_circleBlockArray.get(),numCircles,d_circleBlockIdx.get());
+         //auto result_end = thrust::copy_if(d_circleBlockArray, d_circleBlockArray+numCircles, d_res , is_not_zero());
+         //int* start_ptr = thrust::raw_pointer_cast(&d_res[0]);
+         //int* end_ptr = thrust::raw_pointer_cast(&result_end[0]);
+         //size_t num = (end_ptr - start_ptr);
+         //size_t num = pairs; //(end_ptr - start_ptr+ 1);
 
-         thrust::device_ptr<int> t_circleBlockIdx(circleBlockIdx);
-         thrust::device_vector<int> d_circleBlockIdx(t_circleBlockIdx, t_circleBlockIdx + num);
+         //thrust::device_ptr<int> t_circleBlockIdx(circleBlockIdx);
+         //thrust::device_vector<int> d_circleBlockIdx(t_circleBlockIdx, t_circleBlockIdx + num);
          
-         thrust::copy(d_res.begin(),result_end,d_circleBlockIdx.begin());
-         d_circlePerBlock[0] =  0;
-         d_circlePerBlock[1] =  num;
+         //thrust::copy(d_res,result_end,d_circleBlockIdx);
+         printf("num=%d\n",num);
+         host_circlePerBlock[0] =  0;
+         host_circlePerBlock[1] =  num;
+         printf("num=%d\n",num);
      }
      else{
-         thrust::device_ptr<int> t_circleBlockArray(circleBlockArray + (i*numCircles));
-         thrust::device_vector<int> d_src(t_circleBlockArray, t_circleBlockArray+ numCircles);
+         //thrust::device_ptr<int> t_circleBlockArray = thrust::device_pointer_cast(circleBlockArray+(i*numCircles));
+         //thrust::device_vector<int> d_src(t_circleBlockArray, t_circleBlockArray+ numCircles);
 
-         thrust::device_vector<int> d_res(numCircles);
-         auto result_end = thrust::copy_if(d_src.begin(),d_src.end(),d_res.begin(),is_not_zero());      
-         int* start_ptr = thrust::raw_pointer_cast(&d_res[0]);
-         int* end_ptr = thrust::raw_pointer_cast(&result_end[0]);
-         size_t num = (end_ptr - start_ptr+ 1);
+         printf("goint into else\n");
+         gpuErrchk(cudaDeviceSynchronize());
+         auto num = fillPairs(circleBlockArray+(i*numCircles),numCircles,circleBlockIdx+host_circlePerBlock[i]);
+         //auto result_end = thrust::copy_if(d_circleBlockArray+(i*numCircles), d_circleBlockArray+((i+1)*numCircles), d_res , is_not_zero());
+         //int* start_ptr = thrust::raw_pointer_cast(&d_res[0]);
+         //int* end_ptr = thrust::raw_pointer_cast(&result_end[0]);
+         //size_t num = (end_ptr - start_ptr);
+         //size_t num =  1; //(end_ptr - start_ptr+ 1);
 
-         thrust::device_ptr<int> t_circleBlockIdx(circleBlockIdx + d_circlePerBlock[i]);
-         thrust::device_vector<int> d_circleBlockIdx(t_circleBlockIdx, t_circleBlockIdx+ num);
+         //thrust::device_ptr<int> t_circleBlockIdx(circleBlockIdx + host_circlePerBlock[i]);
+         //thrust::device_vector<int> d_circleBlockIdx(t_circleBlockIdx, t_circleBlockIdx+ num);
 
-         thrust::copy(d_res.begin(),result_end,d_circleBlockIdx.begin());
-         d_circlePerBlock[i+1] = d_circlePerBlock[i] + num;
+         //thrust::copy(d_res,result_end,d_circleBlockIdx);
+         printf("num=%d\n",num);
+         host_circlePerBlock[i+1] = host_circlePerBlock[i] + num;
      }
    }
+  // cudaMemcpy(host_circlePerBlock,circlePerBlock,sizeof(int)*(numBlocks+1),cudaMemcpyDeviceToHost);
+    printf("number of circles in boxes:\n");
+    for(int i=0; i<numBlocks+1;i++){
+       printf(" box[%d]= %d \n",i,host_circlePerBlock[i]);
+       //printf(" d_box[%d][%d]= %d \n",(i/blocksPerRow),(i%blocksPerRow),d_circlePerBlock[i]);
+    }
 }
 
-__global__ void kernelRenderCircles(int imageWidth, int imageHeight, int* circleBlockIdx, int* circlePerBlock, int numBlocks) {
+__global__ void kernelRenderCircles(int imageWidth, int imageHeight, int* circleBlockIdx, int* device_circlePerBlock, int numBlocks) {
     //TODO: convert short to int
     //TODO: can direct get width from const params
     float invWidth = 1.f / imageWidth;
     float invHeight = 1.f / imageHeight;
     int blockNum = blockIdx.y * blockDim.x + blockIdx.x;
-    for (int index = circlePerBlock[blockNum]; index < circlePerBlock[blockNum+1]; index++) {
+    for (int index = device_circlePerBlock[blockNum]; index < device_circlePerBlock[blockNum+1]; index++) {
         int circleIndex = circleBlockIdx[index];
         int index3 = 3 * circleIndex;
         float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
@@ -602,6 +810,10 @@ CudaRenderer::~CudaRenderer() {
         cudaFree(cudaDeviceColor);
         cudaFree(cudaDeviceRadius);
         cudaFree(cudaDeviceImageData);
+        free(host_circlePerBlock);
+        cudaFree(circleBlockIdx);
+        cudaFree(device_circlePerBlock);
+        cudaFree(circleBlockArray);
     }
 }
 
@@ -796,19 +1008,20 @@ CudaRenderer::render() {
    
     circleInBoxTest(numCircles,numBlocks,blocksPerDim);
     
-    printf("number of circles in boxes:\n");
-    for(int i=0; i<numBlocks;i++){
-       printf(" box[%d][%d]= %d \n",(i/blocksPerDim),(i%blocksPerDim),circlePerBlock[i]);
-    }
     dim3 blockDim(16, 16);
    // dim3 gridDim((numPixels  + blockDim.x - 1) / blockDim.x);
     dim3 gridDim(blocksPerDim,blocksPerDim); //dividing it into block -- each block working on a portion of image
-
-    kernelRenderCircles<<<gridDim, blockDim>>>(imageWidth, imageHeight,circleBlockIdx, circlePerBlock,numBlocks);
+   
+   
+    cudaMalloc(&device_circlePerBlock,sizeof(int)*(numBlocks+1));
+    cudaMemcpy(device_circlePerBlock,host_circlePerBlock,sizeof(int)*(numBlocks+1),cudaMemcpyHostToDevice);
+   
+    kernelRenderCircles<<<gridDim, blockDim>>>(imageWidth, imageHeight,circleBlockIdx, device_circlePerBlock,numBlocks);
     gpuErrchk(cudaDeviceSynchronize());
-    cudaFree(circleBlockIdx);
-    cudaFree(circlePerBlock);
-    cudaFree(circleBlockArray);
+    //free(host_circlePerBlock);
+    //cudaFree(circleBlockIdx);
+    //cudaFree(device_circlePerBlock);
+    //cudaFree(circleBlockArray);
 }
 
 

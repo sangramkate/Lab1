@@ -31,7 +31,8 @@ private:
     float* cudaDeviceImageData;
 
     int* circleBlockArray;
-    int* circlePerBlock;
+    int* host_circlePerBlock;
+    int* device_circlePerBlock;
     int* circleBlockIdx;
 
 public:
