@@ -685,12 +685,13 @@ CudaRenderer::advanceAnimation() {
     cudaDeviceSynchronize();
 }
 
-__global__ void make_circleImgBlockArray(int *circleImgBlockArray, int imgBlockWidth) {
+__global__ void make_circleImgBlockArray(int *circleImgBlockArray, int imgBlockWidth, int imgBlockNum) {
    int index = blockIdx.x * blockDim.x + threadIdx.x; 
    if (index >= cuConstRendererParams.numCircles)
         return;
 
     int index3 = 3 * index;
+    //printf("Index : %d\n", index);
 
     // read position and radius
     float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
@@ -711,13 +712,57 @@ __global__ void make_circleImgBlockArray(int *circleImgBlockArray, int imgBlockW
     short screenMinY = (minY > 0) ? ((minY < imageHeight) ? minY : imageHeight) : 0;
     short screenMaxY = (maxY > 0) ? ((maxY < imageHeight) ? maxY : imageHeight) : 0;
 
+    /* 
+    printf("MinX = %d\n",screenMinX/imgBlockWidth);
+    printf("MaxX = %d\n",screenMaxX/imgBlockWidth);
+    printf("MinY = %d\n",screenMinY/imgBlockWidth);
+    printf("MaxY = %d\n",screenMaxY/imgBlockWidth);
+    */
+
+
     for (short x = (screenMinX/imgBlockWidth); x  <= (screenMaxX/imgBlockWidth); x++) {
         for (short y = (screenMinY/imgBlockWidth); y <= (screenMaxY/imgBlockWidth); y++) {
-            circleImgBlockArray[y * (cuConstRendererParams.numCircles) + x] = 1;
+            if((x == imgBlockNum) || (y == imgBlockNum)) { continue;}
+            circleImgBlockArray[(y*imgBlockNum + x) *(cuConstRendererParams.numCircles) + index] = 1;
+            //printf("Index = %d %d %d\n", x, y, index);
+            //printf("HERE!!!!\n");
         }
     }
 
 }
+
+__global__ void print_kernel(int length, int* input) {
+    printf("HERE\n");
+    for(int i=0; i< length; i++) {
+        printf("input[%d] = %d\n", i, input[i]);
+    }
+}
+
+__global__ void compare_array(int length, int* array1, int* array2) {
+    for(int i=0; i< length; i++) {
+        if(array1[i] != array2[i]) {
+            printf("Arrays don't match. Expected = %d, Got = %d\n", array1[i], array2[i]);
+        }
+    }
+}
+
+__global__ void getRefCircleArray(int* refCircleImgArray) {
+    for (int index = 0; index < cuConstRendererParams.numCircles; index++) {
+        int index3 = 3 * index;
+        float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
+
+        float rad = cuConstRendererParams.radius[index];
+        // BlockDim = 256 x1, gridDim = 4x4
+
+        int circleInBox = circleInBoxConservative(p.x, p.y, rad, 
+            static_cast<float>(1.f/gridDim.x)*blockIdx.x, static_cast<float>(1.f/gridDim.x)*(blockIdx.x+1), 
+            static_cast<float>(1.f/gridDim.y)*(blockIdx.y+1), static_cast<float>(1.f/gridDim.y)*(blockIdx.y));
+
+        //printf("ID: %d\n" , index + (blockIdx.x + blockIdx.y*gridDim.x)*cuConstRendererParams.numCircles);
+        refCircleImgArray[index + (blockIdx.x + blockIdx.y*gridDim.x)*cuConstRendererParams.numCircles] = circleInBox;
+    }
+}
+
 
 void
 CudaRenderer::render() {
@@ -745,20 +790,29 @@ CudaRenderer::render() {
     */
     
     int* circleImgBlockArray = NULL;
-    int imgBlockNum = 64 ;
+    int imgBlockNum = 64;
     cudaMalloc(&circleImgBlockArray, sizeof(int) * numCircles * imgBlockNum * imgBlockNum);
+    gpuErrchk(cudaDeviceSynchronize());
     dim3 blockDim(256, 1);
     dim3 gridDim((numCircles + blockDim.x - 1) / blockDim.x);
-    make_circleImgBlockArray<<<gridDim, blockDim>>>(circleImgBlockArray,imageWidth/imgBlockNum);
+    make_circleImgBlockArray<<<gridDim, blockDim>>>(circleImgBlockArray,imageWidth/imgBlockNum, imgBlockNum);
 
     //TODO: why does perf tank with more kernels --- what's the trade off? 
     //kernelRenderCircles<<<gridDim, blockDim>>>();
     gpuErrchk(cudaDeviceSynchronize());
-    for (int block = 0; block < imgBlockNum * imgBlockNum; block++) {
-        for(int circle = 0; circle < numCircles; circle++) {
-            printf("circleImgBlockArray[%d][%d]= %d\n",block,circle,circleImgBlockArray[block * numCircles + circle]);
-        }
-    }
+
+    /*
+    int* refCircleImgArray = NULL;
+    cudaMalloc(&refCircleImgArray, sizeof(int) * numCircles * imgBlockNum * imgBlockNum);
+    dim3 gridDim2(imgBlockNum, imgBlockNum);
+    getRefCircleArray<<<gridDim2, 1>>>(refCircleImgArray);
+    gpuErrchk(cudaDeviceSynchronize());
+    compare_array<<<1,1>>>(numCircles * imgBlockNum * imgBlockNum, refCircleImgArray, circleImgBlockArray);
+    */
+
+    //print_kernel<<<1,1>>>(numCircles * imgBlockNum * imgBlockNum, circleImgBlockArray);
+    gpuErrchk(cudaDeviceSynchronize());
+
 }
 
 
