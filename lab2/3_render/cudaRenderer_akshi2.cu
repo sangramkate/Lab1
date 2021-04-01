@@ -556,9 +556,11 @@ __global__ void kernelRenderCircles_pattern(int sharedMem_size) {
     int imageWidth = cuConstRendererParams.imageWidth;
     int imageHeight = cuConstRendererParams.imageHeight;
     int numCircles = cuConstRendererParams.numCircles;
-    extern __shared__ int circleList[];
-    extern __shared__ int circleScan[];
-    extern __shared__ int final_circleList[];
+    //extern __shared__ int circleList[];
+    //extern __shared__ int circleScan[];
+    //extern __shared__ int final_circleList[];
+
+    extern __shared__ int circleGlobal[];
 
     int threadsPerBlock = blockDim.x * blockDim.y;
 
@@ -569,48 +571,52 @@ __global__ void kernelRenderCircles_pattern(int sharedMem_size) {
         float rad = cuConstRendererParams.radius[tid];
         if (tid < numCircles) {
             int circleInBox = circleInBoxConservative(p.x, p.y, rad, 
-                                static_cast<float>(1.f/gridDim.x)*blockIdx.x, static_cast<float>(1.f/gridDim.x)*(blockIdx.x+1), 
-                                static_cast<float>(1.f/gridDim.y)*(blockIdx.y+1), static_cast<float>(1.f/gridDim.y)*(blockIdx.y));
-            circleList[tid] = circleInBox ? (tid+1) : 0;
-            circleScan[tid] = circleInBox;
+                              static_cast<float>(1.f/gridDim.x)*blockIdx.x, static_cast<float>(1.f/gridDim.x)*(blockIdx.x+1), 
+                              static_cast<float>(1.f/gridDim.y)*(blockIdx.y+1), static_cast<float>(1.f/gridDim.y)*(blockIdx.y));
+            circleGlobal[tid] = circleInBox ? (tid+1) : 0;
+            circleGlobal[sharedMem_size +tid] = circleInBox;
+            //if(blockIdx.x + blockIdx.y == 0) {
+            //    printf("tid = %d, circleInBox = %d, circleList[%d] = %d\n", tid, circleInBox, tid, circleGlobal[tid]);
+            //}
         } else {
-            circleList[tid] = 0;
-            circleScan[tid] = 0;
+            circleGlobal[tid] = 0;
+            circleGlobal[sharedMem_size +tid] = 0;
         }
         
 
     }
     __syncthreads();
     //Perform scan on circlePresent
-    int previous, current = 0;
+    int previous = 0;
+    int current = 0;
     for (int i = 0; i < sharedMem_size ; i += threadsPerBlock ) {
         int tid = i + threadIdx.y * blockDim.x + threadIdx.x;
         int local_tid = threadIdx.y * blockDim.x + threadIdx.x;
 
         if (local_tid == 0) {
-            current = circleScan[i-1];
+            current = circleGlobal[sharedMem_size +i + threadsPerBlock -1];
         }
         
         for (int twod = 1; twod < threadsPerBlock; twod *= 2) {
             int twod1 = 2*twod;
-           if(local_tid < threadsPerBlock && (local_tid % twod1 == 0)) {
-                circleScan[local_tid + twod1 -1 + i] += circleScan[local_tid + twod -1 + i];
+           if(local_tid < threadsPerBlock && ((local_tid % twod1) == 0)) {
+                circleGlobal[sharedMem_size +local_tid + twod1 -1 + i] += circleGlobal[sharedMem_size +local_tid + twod -1 + i];
            }
         }
         __syncthreads();
-        if(local_tid == 0) {circleScan[threadsPerBlock  - 1 + i] = 0;}
+        if(local_tid == 0) {circleGlobal[sharedMem_size +threadsPerBlock  - 1 + i] = 0;}
          __syncthreads(); 
         for(int twod=threadsPerBlock/2; twod >=1; twod/=2) {
             int twod1 = twod*2 ;
             if ((local_tid < threadsPerBlock) && ((local_tid % twod1) == 0)) {
-                int t = circleScan[local_tid + twod - 1 + i];
-                circleScan[local_tid+twod-1 + i] = circleScan[local_tid+twod1-1 + i];
-                circleScan[local_tid+twod1-1 + i] += t; // change twod1 to twod to reverse prefix sum.
+                int t = circleGlobal[sharedMem_size +local_tid + twod - 1 + i];
+                circleGlobal[sharedMem_size +local_tid+twod-1 + i] = circleGlobal[sharedMem_size +local_tid+twod1-1 + i];
+                circleGlobal[sharedMem_size +local_tid+twod1-1 + i] += t; // change twod1 to twod to reverse prefix sum.
             }     
         }
         __syncthreads();
         if (i != 0) {
-            circleScan[tid] += circleScan[i - 1] + previous;
+            circleGlobal[sharedMem_size +tid] += circleGlobal[sharedMem_size +i - 1] + previous;
         }
         if(local_tid == 0 ) {
             previous = current;
@@ -621,19 +627,29 @@ __global__ void kernelRenderCircles_pattern(int sharedMem_size) {
     //Perform stream compaction
     for (int i =0; i < sharedMem_size; i+= threadsPerBlock) {
         int tid = i + threadIdx.y * blockDim.x + threadIdx.x; 
-        if(circleList[tid] != 0) {
-            final_circleList[circleScan[tid]] = circleList[tid] - 1; 
+        if(circleGlobal[tid] != 0) {
+            circleGlobal[2*sharedMem_size +circleGlobal[sharedMem_size +tid]] = circleGlobal[tid] - 1; 
         }
     }
 
+   // if (blockIdx.x + blockIdx.y == 0) {
+   //     for (int i = 0; i < sharedMem_size ; i += threadsPerBlock ) { 
+   //         int tid = i + threadIdx.y * blockDim.x + threadIdx.x;
+   //         //if (tid < 257) {
+   //             printf("tid = %d, finalCircleList[%d] = %d\n", tid, tid, circleGlobal[2*sharedMem_size +tid]);
+   //         //}
+   //     }
+   // }
     __syncthreads();
     //int start_addr = circleStartAddr[blockIdx.y*gridDim.x + blockIdx.x];
     //int end_addr= circleStartAddr[blockIdx.y*gridDim.x + blockIdx.x + 1];
     int start_addr = 0;
-    int end_addr = circleScan[sharedMem_size - 1];
+    int end_addr = circleGlobal[sharedMem_size +sharedMem_size - 1];
 
-                int x = blockIdx.x*(imageWidth/gridDim.x) + threadIdx.x + 16*(blockIdx.z % 8);
-                int y = blockIdx.y*(imageHeight/gridDim.y) + threadIdx.y + 16*(blockIdx.z / 8);
+       //         int x = blockIdx.x*(imageWidth/gridDim.x) + threadIdx.x + 16*(blockIdx.z % 8);
+       //         int y = blockIdx.y*(imageHeight/gridDim.y) + threadIdx.y + 16*(blockIdx.z / 8);
+                int x = blockIdx.x*(imageWidth/gridDim.x) + threadIdx.x + 16*(blockIdx.z % 4);
+                int y = blockIdx.y*(imageHeight/gridDim.y) + threadIdx.y + 16*(blockIdx.z / 4);
                 float red_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x))];
                 float green_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x)) + 1];
                 float blue_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x)) + 2];
@@ -646,7 +662,7 @@ __global__ void kernelRenderCircles_pattern(int sharedMem_size) {
                 int index ;
                 for (int arrIdx = start_addr; arrIdx < end_addr; arrIdx++) {
                         //index = circleImgBlockList[arrIdx] - 1;
-                    index = final_circleList[arrIdx];
+                    index = circleGlobal[2*sharedMem_size +arrIdx];
                     int index3 = 3 * index;
                     float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
                     shadePixel(index, pixelCenterNorm, p, red_pixel, green_pixel, blue_pixel, alpha_pixel);
@@ -1109,7 +1125,7 @@ CudaRenderer::render() {
         // deviceImgBlockList = thrust::raw_pointer_cast(circleImgBlockList.data());
  
         // //int numPixelsPerBlock = blockDim.x * blockDim.y * 4;
-         kernelRenderCircles_pattern<<<gridDim3, blockDim3,256*6*sizeof(int)>>>(256*6);
+         kernelRenderCircles_pattern<<<gridDim3, blockDim3,256*6*sizeof(int)*3>>>(256*6);
          gpuErrchk(cudaDeviceSynchronize());
    } else {
          int imgBlockNum = 16;
