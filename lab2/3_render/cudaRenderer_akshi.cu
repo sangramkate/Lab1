@@ -479,8 +479,8 @@ __global__ void kernelRenderCircles(int* circleImgBlockList, int* circleStartAdd
     for(int tid_x = threadIdx.x ; tid_x < (imageWidth/gridDim.x); tid_x +=blockDim.x) {
         for(int tid_y = threadIdx.y ; tid_y < (imageHeight/gridDim.y); tid_y +=blockDim.y) {
 
-            int x = blockIdx.x*(imageWidth/gridDim.x) + threadIdx.x;
-            int y = blockIdx.y*(imageHeight/gridDim.y) + threadIdx.y;
+            int x = blockIdx.x*(imageWidth/gridDim.x) + tid_x;
+            int y = blockIdx.y*(imageHeight/gridDim.y) + tid_y;
             float red_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x))];
             float green_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x)) + 1];
             float blue_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x)) + 2];
@@ -862,6 +862,54 @@ struct linear_index_to_row_index : public thrust::unary_function<T,T>
 };
 
 
+__global__ void kernelRenderSmallCircles() {
+    float invWidth = cuConstRendererParams.invWidth;
+    float invHeight = cuConstRendererParams.invHeight;
+    int imageWidth = cuConstRendererParams.imageWidth;
+    int imageHeight = cuConstRendererParams.imageHeight;
+
+    int x = blockIdx.x*(imageWidth/gridDim.x) + threadIdx.x;
+    int y = blockIdx.y*(imageHeight/gridDim.y) + threadIdx.y;
+
+   float red_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x))];
+   float green_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x)) + 1];
+   float blue_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x)) + 2];
+   float alpha_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x)) + 3]; 
+    
+
+    //TODO: is it converted to registers??  ---> I think its best if I pass by reference?? 
+    //float4 imgPtr = *(float4*)(&cuConstRendererParams.imageData[4 * (y * imageWidth + x)]);
+    __syncthreads(); //to make sure this shared memory is visible to everyone --> can remove this as the syncthreads below will take care of it
+
+    for (int index = 0; index < cuConstRendererParams.numCircles; index++) {
+        int index3 = 3 * index;
+        float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
+        float rad = cuConstRendererParams.radius[index];
+        // BlockDim = 256 x1, gridDim = 4x4
+
+        //__shared__ int circleInBox;
+        //if(threadIdx.x + threadIdx.y == 0) {
+            int circleInBox = circleInBoxConservative(p.x, p.y, rad, 
+                static_cast<float>(1.f/gridDim.x)*blockIdx.x, static_cast<float>(1.f/gridDim.x)*(blockIdx.x+1), 
+                static_cast<float>(1.f/gridDim.y)*(blockIdx.y+1), static_cast<float>(1.f/gridDim.y)*(blockIdx.y));
+        //}
+
+        //__syncthreads(); //TODO: is this even needed? --- but why? 
+        if(circleInBox == 0) { continue; }
+
+        float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(x) + 0.5f),
+                                                         invHeight * (static_cast<float>(y) + 0.5f));
+        shadePixel(index, pixelCenterNorm, p, red_pixel, green_pixel, blue_pixel, alpha_pixel);
+
+     }
+     __syncthreads();
+
+     cuConstRendererParams.imageData[4 * (y * imageWidth + x)] = red_pixel;
+     cuConstRendererParams.imageData[4 * (y * imageWidth + x) + 1] = green_pixel;
+     cuConstRendererParams.imageData[4 * (y * imageWidth + x) + 2 ] = blue_pixel;
+     cuConstRendererParams.imageData[4 * (y * imageWidth + x) + 3 ] = alpha_pixel;
+    
+}
 
 void
 CudaRenderer::render() {
@@ -890,125 +938,157 @@ CudaRenderer::render() {
     
     int* circleImgBlockArray = NULL;
     int* circleImgBlockId = NULL;
-    printf("NumCircles = %d\n",numCircles);
-    int imgBlockNum = 32;
-    //if(numCircles < 5) {
-    //    imgBlockNum = 1;
-    //} else if(numCircles < 100) {
-    //    imgBlockNum = 2;
-    //} else if(numCircles < 1000) {
-    //    imgBlockNum = 4;
-    //} else if (numCircles < 10000) {
-    //    imgBlockNum = 8;
-    //} else {
-    //    imgBlockNum = 32;
-    //}
-    int numImgBlocks = imgBlockNum * imgBlockNum;
-    int numElements = numCircles * imgBlockNum * imgBlockNum;  
+    //printf("NumCircles = %d\n",numCircles);
 
-    cudaMalloc(&circleImgBlockArray, sizeof(int) * numElements);
-    cudaMalloc(&circleImgBlockId, sizeof(int) * numElements);
-    //gpuErrchk(cudaDeviceSynchronize());
-    dim3 blockDim(256, 1);
-    dim3 gridDim((numCircles + blockDim.x - 1) / blockDim.x);
-    make_circleImgBlockArray<<<gridDim, blockDim>>>(circleImgBlockArray,circleImgBlockId,imageWidth/imgBlockNum, imgBlockNum);
+   if (numCircles < 5) {
 
-
-    /*Convert the 2D circle block array into 1 D array by removing 0 values  */
-    thrust::device_ptr<int> thrust_arr = thrust::device_pointer_cast(circleImgBlockArray); 
-    thrust::device_ptr<int> thrust_circleid = thrust::device_pointer_cast(circleImgBlockId); 
-    //thrust::device_vector<int> prefix_sum(num_img_blocks);
-
-    //Gets the number circles per each block
-    //This is used to generate the starting address of each array
-    int *reduced = NULL;
-    reduced = (int*) malloc(sizeof(int)*(numImgBlocks+1));
-
-    /*
-    // allocate storage for rowu sums and indices
-    thrust::device_vector<int> row_sums(numImgBlocks);
-    thrust::device_vector<int> row_indices(numImgBlocks);
-
-      // compute row sums by summing values with equal row indices
-    thrust::reduce_by_key
-    (thrust::make_transform_iterator(thrust::counting_iterator<int>(0), linear_index_to_row_index<int>(numImgBlocks)),
-     thrust::make_transform_iterator(thrust::counting_iterator<int>(0), linear_index_to_row_index<int>(numImgBlocks)) + numElements,
-     thrust_arr,
-     row_indices.begin(),
-     row_sums.begin(),
-     thrust::equal_to<int>(),
-     thrust::plus<int>());
-    */
+    // compute the bounding box of the circle. The bound is in integer
+    // screen coordinates, so it's clamped to the edges of the screen.
+    short imageWidth = image->width;
+    short imageHeight = image->height;
     
+    dim3 blockDim(16, 16);
+   // dim3 gridDim((numPixels  + blockDim.x - 1) / blockDim.x);
+   //int numPixels = imageWidth * imageHeight;
+    int temp1 = (imageWidth + blockDim.x - 1) / blockDim.x;
+    int temp2 = (imageHeight + blockDim.y - 1) / blockDim.y;
+    dim3 gridDim(temp1,temp2); //dividing it into block -- each block working on a portion of image
 
-    //TODO CHECK: Are these matching? If yes, what is more performant? 
-    /*
-    for(int i=0; i< numImgBlocks; i++) {
-        printf("Row_sums[%d] = %d\n", i, row_sums[i]);
-    }*/
-    
-    for(int i=0; i<numImgBlocks; i++) {
-        reduced[i] = thrust::reduce(thrust_arr+numCircles*i, thrust_arr + numCircles*(i+1));
-       // printf("Reduced[%d] %d\n", i, reduced[i]);
-    }
-    reduced[numImgBlocks] = 0;
+    //NumPixels per block
+    //int numPixelsPerBlock = blockDim.x * blockDim.y * 4;
 
-    //Run exclusive scan to get starting address of each array
-    thrust::device_vector<int> circleStartAddr(numImgBlocks+1);
-    
-    thrust::device_ptr<int> reduced_gpu = thrust::device_malloc<int>(numImgBlocks+1);
-    cudaMemcpy(reduced_gpu.get(), reduced, (numImgBlocks + 1) * sizeof(int), 
-               cudaMemcpyHostToDevice);
-    thrust::exclusive_scan(reduced_gpu, reduced_gpu+numImgBlocks+1, circleStartAddr.begin());
-    //thrust::copy(circleStartAddr.begin(), circleStartAddr.end(), std::ostream_iterator<float>(std::cout, " "));
-    //thrust::exclusive_scan(row_sums.begin(), row_sums.begin()+numImgBlocks, circleStartAddr.begin());
-
-    //TODO CHECK: get a sum of reduced and compare that with num pairs to confirm its all correct!
-    //TODO CHECK: which one is more performant? -- choose that 
-    int num_pairs = thrust::reduce(thrust_arr, thrust_arr + numElements);
-    //printf("SUM = %d\n", num_pairs);
-
-    cudaFree(circleImgBlockArray);
-    //thrust::device_vector<int> prefix_sum(num_img_blocks);
-
-    //kernelRenderCircles<<<gridDim, blockDim>>>();
-  //  gpuErrchk(cudaDeviceSynchronize());
-
-    //allocate the right size of array
-    //This array will be traversed by each block -- by using starting address from circleStartAddr
-    thrust::device_vector<int> circleImgBlockList(num_pairs);
-    thrust::copy_if(thrust_circleid, thrust_circleid + numElements, circleImgBlockList.begin(), is_not_zero<int>());
-    cudaFree(circleImgBlockId);
-
-    //thrust::copy(circleImgBlockList.begin(), circleImgBlockList.end(), std::ostream_iterator<float>(std::cout, " "));
-    //TODO: can use cuda streams to parallelize these I think...
-    /*
-    int* refCircleImgArray = NULL;
-    cudaMalloc(&refCircleImgArray, sizeof(int) * numCircles * imgBlockNum * imgBlockNum);
-    dim3 gridDim2(imgBlockNum, imgBlockNum);
-    getRefCircleArray<<<gridDim2, 1>>>(refCircleImgArray);
+    //TODO: why does perf tank with more kernels --- what's the trade off? 
+    kernelRenderSmallCircles<<<gridDim, blockDim>>>();
     gpuErrchk(cudaDeviceSynchronize());
-    compare_array<<<1,1>>>(numCircles * imgBlockNum * imgBlockNum, refCircleImgArray, circleImgBlockArray);
-    */
 
-    //print_kernel<<<1,1>>>(numCircles * imgBlockNum * imgBlockNum, circleImgBlockArray);
+   } else {
+         int imgBlockNum =16;
+         //if(numCircles < 5) {
+         //    imgBlockNum = 1;
+         //} else if(numCircles < 100) {
+         //    imgBlockNum = 2;
+         //} else if(numCircles < 1000) {
+         //    imgBlockNum = 4;
+         //} else if (numCircles < 10000) {
+         //    imgBlockNum = 8;
+         //} else {
+         //    imgBlockNum = 32;
+         //}
+         int numImgBlocks = imgBlockNum * imgBlockNum;
+         int numElements = numCircles * imgBlockNum * imgBlockNum;  
 
-    //TODO: Need to free all these data strctures that I am creating!!
 
-    dim3 gridDim3(imgBlockNum, imgBlockNum);
-    dim3 blockDim3(32, 32);
-    //TODO: convert to shared memroy versiion??
-    //kernelRenderCircles<<<gridDim, blockDim,numPixelsPerBlock*sizeof(float)>>>(imageWidth, imageHeight);
-    
-    int *deviceStartAddr = NULL;
-    deviceStartAddr = thrust::raw_pointer_cast(circleStartAddr.data());
-    int *deviceImgBlockList = NULL;
-    deviceImgBlockList = thrust::raw_pointer_cast(circleImgBlockList.data());
+         cudaMalloc(&circleImgBlockArray, sizeof(int) * numElements);
+         cudaMalloc(&circleImgBlockId, sizeof(int) * numElements);
+         //gpuErrchk(cudaDeviceSynchronize());
+         dim3 blockDim(256, 1);
+         dim3 gridDim((numCircles + blockDim.x - 1) / blockDim.x);
+         make_circleImgBlockArray<<<gridDim, blockDim>>>(circleImgBlockArray,circleImgBlockId,imageWidth/imgBlockNum, imgBlockNum);
+
+
+         /*Convert the 2D circle block array into 1 D array by removing 0 values  */
+         thrust::device_ptr<int> thrust_arr = thrust::device_pointer_cast(circleImgBlockArray); 
+         thrust::device_ptr<int> thrust_circleid = thrust::device_pointer_cast(circleImgBlockId); 
+         //thrust::device_vector<int> prefix_sum(num_img_blocks);
+
+         //Gets the number circles per each block
+         //This is used to generate the starting address of each array
+         //int *reduced = NULL;
+         //reduced = (int*) malloc(sizeof(int)*(numImgBlocks+1));
+
+         
+         // allocate storage for rowu sums and indices
+         thrust::device_vector<int> row_sums(numImgBlocks+1);
+         thrust::device_vector<int> row_indices(numImgBlocks);
+
+           // compute row sums by summing values with equal row indices
+         thrust::reduce_by_key
+         (thrust::make_transform_iterator(thrust::counting_iterator<int>(0), linear_index_to_row_index<int>(numCircles)),
+          thrust::make_transform_iterator(thrust::counting_iterator<int>(0), linear_index_to_row_index<int>(numCircles)) + numElements,
+          thrust_arr,
+          row_indices.begin(),
+          row_sums.begin(),
+          thrust::equal_to<int>(),
+          thrust::plus<int>());
+         
+         
+         thrust::fill(thrust::device, row_sums.end() - 1, row_sums.end(), 0);
+         //thrust::copy(row_sums.begin(), row_sums.end(), std::ostream_iterator<int>(std::cout, " "));
+         //TODO CHECK: Are these matching? If yes, what is more performant? 
+         
+         //for(int i=0; i< numImgBlocks; i++) {
+            // printf("Row_sums[%d] = %d\n", i, row_sums[i]);
+         //}
+        /* 
+         for(int i=0; i<numImgBlocks; i++) {
+             reduced[i] = thrust::reduce(thrust_arr+numCircles*i, thrust_arr + numCircles*(i+1));
+            // printf("Reduced[%d] %d\n", i, reduced[i]);
+         }
+         reduced[numImgBlocks] = 0;
+
+         //Run exclusive scan to get starting address of each array
+         thrust::device_vector<int> circleStartAddr(numImgBlocks+1);
+         
+         thrust::device_ptr<int> reduced_gpu = thrust::device_malloc<int>(numImgBlocks+1);
+         cudaMemcpy(reduced_gpu.get(), reduced, (numImgBlocks + 1) * sizeof(int), 
+                    cudaMemcpyHostToDevice);
+         thrust::exclusive_scan(reduced_gpu, reduced_gpu+numImgBlocks+1, circleStartAddr.begin());
+         //thrust::copy(circleStartAddr.begin(), circleStartAddr.end(), std::ostream_iterator<float>(std::cout, " "));
+         */
+         
+         thrust::device_vector<int> circleStartAddr(numImgBlocks+1);
+         thrust::exclusive_scan(row_sums.begin(), row_sums.end(), circleStartAddr.begin());
+         //thrust::copy(circleStartAddr.begin(), circleStartAddr.end(), std::ostream_iterator<float>(std::cout, " "));
+
+
+         //TODO CHECK: get a sum of reduced and compare that with num pairs to confirm its all correct!
+         //TODO CHECK: which one is more performant? -- choose that 
+         int num_pairs = thrust::reduce(thrust_arr, thrust_arr + numElements);
+         //int num_pairs = circleStartAddr[numImgBlocks];
+         //printf("SUM = %d\n", num_pairs);
+
+         cudaFree(circleImgBlockArray);
+         //thrust::device_vector<int> prefix_sum(num_img_blocks);
+
+         //kernelRenderCircles<<<gridDim, blockDim>>>();
+         //  gpuErrchk(cudaDeviceSynchronize());
+
+         //allocate the right size of array
+         //This array will be traversed by each block -- by using starting address from circleStartAddr
+         thrust::device_vector<int> circleImgBlockList(num_pairs);
+         thrust::copy_if(thrust_circleid, thrust_circleid + numElements, circleImgBlockList.begin(), is_not_zero<int>());
+         cudaFree(circleImgBlockId);
+
+         //thrust::copy(circleImgBlockList.begin(), circleImgBlockList.end(), std::ostream_iterator<float>(std::cout, " "));
+         //TODO: can use cuda streams to parallelize these I think...
+         /*
+         int* refCircleImgArray = NULL;
+         cudaMalloc(&refCircleImgArray, sizeof(int) * numCircles * imgBlockNum * imgBlockNum);
+         dim3 gridDim2(imgBlockNum, imgBlockNum);
+         getRefCircleArray<<<gridDim2, 1>>>(refCircleImgArray);
+         gpuErrchk(cudaDeviceSynchronize());
+         compare_array<<<1,1>>>(numCircles * imgBlockNum * imgBlockNum, refCircleImgArray, circleImgBlockArray);
+         */
+
+         //print_kernel<<<1,1>>>(numCircles * imgBlockNum * imgBlockNum, circleImgBlockArray);
+
+         //TODO: Need to free all these data strctures that I am creating!!
+
+         dim3 gridDim3(imgBlockNum, imgBlockNum);
+         dim3 blockDim3(16, 16);
+         //TODO: convert to shared memroy versiion??
+         //kernelRenderCircles<<<gridDim, blockDim,numPixelsPerBlock*sizeof(float)>>>(imageWidth, imageHeight);
+         
+         int *deviceStartAddr = NULL;
+         deviceStartAddr = thrust::raw_pointer_cast(circleStartAddr.data());
+         int *deviceImgBlockList = NULL;
+         deviceImgBlockList = thrust::raw_pointer_cast(circleImgBlockList.data());
  
-    int numPixelsPerBlock = blockDim.x * blockDim.y * 4;
-    kernelRenderCircles<<<gridDim3, blockDim3, numPixelsPerBlock*sizeof(float)>>>(deviceImgBlockList, deviceStartAddr);
-    //kernelRenderCircles<<<gridDim3, blockDim3>>>(circleImgBlockList, deviceStartAddr);
-    gpuErrchk(cudaDeviceSynchronize());
+         int numPixelsPerBlock = blockDim.x * blockDim.y * 4;
+         kernelRenderCircles<<<gridDim3, blockDim3, numPixelsPerBlock*sizeof(float)>>>(deviceImgBlockList, deviceStartAddr);
+         //kernelRenderCircles<<<gridDim3, blockDim3>>>(circleImgBlockList, deviceStartAddr);
+         gpuErrchk(cudaDeviceSynchronize());
+    }
 }
 
 
