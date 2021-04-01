@@ -482,57 +482,9 @@ shadePixel(int circleIndex, float2 pixelCenter, float3 p, float& redPix, float& 
 // ensure order of update or mutual exclusion on the output image, the
 // resulting image will be incorrect.
 
-/*__global__ void kernelRenderCircles(int* circleImgBlockList, int* circleStartAddr) {
-    float invWidth = cuConstRendererParams.invWidth;
-    float invHeight = cuConstRendererParams.invHeight;
-    int imageWidth = cuConstRendererParams.imageWidth;
-    int imageHeight = cuConstRendererParams.imageHeight;
-    //TODO: convert short to int
-    //TODO: can direct get width from const params
-    float invWidth = cuConstRendererParams.invWidth;
-    float invHeight = cuConstRendererParams.invHeight;
-
-    //Read data from imgPtr to shared memory
-    extern __shared__ float shared_imgData[];
-    int x = blockIdx.x*(imageWidth/gridDim.x) + threadIdx.x;
-    int y = blockIdx.y*(imageHeight/gridDim.y) + threadIdx.y;
-    for (int k = 0 ; k < 4; k ++) {
-        shared_imgData[4 * (threadIdx.y*(imageWidth/gridDim.x) + threadIdx.x) + k] = cuConstRendererParams.imageData[(4 * (y * imageWidth + x)) + k];
-    }
-
-    __syncthreads();
-
-    int start_addr = circleStartAddr[blockIdx.y*gridDim.x + blockIdx.x];
-    int end_addr= circleStartAddr[blockIdx.y*gridDim.x + blockIdx.x + 1];
-    for (int arrIdx = start_addr; arrIdx < end_addr; arrIdx++) {
-        int index = circleImgBlockList[arrIdx] - 1;
-        int index3 = 3 * index;
-        float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
-    //    const unsigned int offset = blockIdx.x*blockDim.x + threadIdx.x;
-
-        float rad = cuConstRendererParams.radius[index];
-        // BlockDim = 256 x1, gridDim = 4x4
-
-        float4* shared_imgPtr = (float4*)(&shared_imgData[4 * (threadIdx.y * (imageWidth/gridDim.x) + threadIdx.x)]);
-        float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(x) + 0.5f),
-                                                     invHeight * (static_cast<float>(y) + 0.5f));
-        shadePixel(index, pixelCenterNorm, p, shared_imgPtr);
-            
-    }
-     __syncthreads();
-
-     //Write data to global memory from shared memory
-     float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * (y * imageWidth + x)]);
-     float r = shared_imgData[4 * (threadIdx.y*(imageWidth/gridDim.x) + threadIdx.x)];
-     float g = shared_imgData[4 * (threadIdx.y*(imageWidth/gridDim.x) + threadIdx.x) + 1];
-     float b = shared_imgData[4 * (threadIdx.y*(imageWidth/gridDim.x) + threadIdx.x) + 2];
-     float a = shared_imgData[4 * (threadIdx.y*(imageWidth/gridDim.x) + threadIdx.x) + 3];
-     *imgPtr = make_float4(r,g,b,a);
-}
-*/
 
 __global__ void kernelRenderCircles(int* circleImgBlockList, int* circleStartAddr) {
-    const int sharedSize = 4096;
+    const int sharedSize = 2850;
     const int totalThreads = blockDim.x * blockDim.y;
      __shared__ int sharedData[sharedSize];
     float invWidth = cuConstRendererParams.invWidth;
@@ -555,7 +507,7 @@ __global__ void kernelRenderCircles(int* circleImgBlockList, int* circleStartAdd
     }
     for(int i=0; i < data_per_thread; i++ ){
       int tid = threadIdx.y * blockDim.y + threadIdx.x;
-      if(tid < sharedCirclePairs){
+      if(tid < sharedCirclePairs  && (i + data_per_thread * tid) < sharedSize){
          sharedData[i + data_per_thread * tid] = circleImgBlockList[start_addr + i + data_per_thread * tid]; 
       }
     }
@@ -576,7 +528,7 @@ __global__ void kernelRenderCircles(int* circleImgBlockList, int* circleStartAdd
                 //Unrolled the k loop to avoid loop overhead
                 int index ;
                 for (int arrIdx = start_addr; arrIdx < end_addr; arrIdx++) {
-                    if(sharedDataOverhead && ((arrIdx - start_addr) >sharedSize))
+                    if(sharedDataOverhead && ((arrIdx - start_addr) >= sharedSize))
                         index = circleImgBlockList[arrIdx] - 1;
                     else
                         index = sharedData[arrIdx-start_addr] - 1;
@@ -895,7 +847,7 @@ struct is_not_zero : public thrust::unary_function<T,bool>
     }
 };
 
-// convert a linear index to a row index
+// convert a linear index to + data_per_thread * tid a row index
 template <typename T>
 struct linear_index_to_row_index : public thrust::unary_function<T,T>
 {
@@ -980,7 +932,7 @@ CudaRenderer::render() {
         gpuErrchk(cudaDeviceSynchronize());
       }
    } else {
-         int imgBlockNum =16;
+         int imgBlockNum = 16;
 
          int numImgBlocks = imgBlockNum * imgBlockNum;
          int numElements = numCircles * imgBlockNum * imgBlockNum;  
