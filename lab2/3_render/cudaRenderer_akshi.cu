@@ -470,45 +470,100 @@ shadePixel(int circleIndex, float2 pixelCenter, float3 p, float& redPix, float& 
 */
 
 __global__ void kernelRenderCircles(int* circleImgBlockList, int* circleStartAddr) {
+    const int sharedSize = 1;
+    //const int sharedSize2 = 1024 * 3;
+    const int totalThreads = blockDim.x * blockDim.y;
+     __shared__ int sharedData[sharedSize];
+     //__shared__ float3 sharedData1[sharedSize];
     float invWidth = cuConstRendererParams.invWidth;
     float invHeight = cuConstRendererParams.invHeight;
     int imageWidth = cuConstRendererParams.imageWidth;
     int imageHeight = cuConstRendererParams.imageHeight;
 
+//    if((blockIdx.x + blockIdx.y) == 0) {
+        //printf("HERE 2 %d %d\n", blockIdx.x, blockIdx.y);
+ //   }
 
-    for(int tid_x = threadIdx.x ; tid_x < (imageWidth/gridDim.x); tid_x +=blockDim.x) {
-        for(int tid_y = threadIdx.y ; tid_y < (imageHeight/gridDim.y); tid_y +=blockDim.y) {
+    int start_addr = circleStartAddr[blockIdx.y*gridDim.x + blockIdx.x];
+    int end_addr= circleStartAddr[blockIdx.y*gridDim.x + blockIdx.x + 1];
+    int sharedCirclePairs = end_addr - start_addr;
+ 
+    int data_per_thread;
+    int sharedDataOverhead = 0;
+    int index1;
+    float3 p;
 
-            int x = blockIdx.x*(imageWidth/gridDim.x) + tid_x;
-            int y = blockIdx.y*(imageHeight/gridDim.y) + tid_y;
-            float red_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x))];
-            float green_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x)) + 1];
-            float blue_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x)) + 2];
-            float alpha_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x)) + 3]; 
-            float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(x) + 0.5f),
-                                                             invHeight * (static_cast<float>(y) + 0.5f));
-            
-            //k*# of pixels, added with linear thread ID 
-            //Unrolled the k loop to avoid loop overhead
 
-            int start_addr = circleStartAddr[blockIdx.y*gridDim.x + blockIdx.x];
-            int end_addr= circleStartAddr[blockIdx.y*gridDim.x + blockIdx.x + 1];
-            for (int arrIdx = start_addr; arrIdx < end_addr; arrIdx++) {
-                int index = circleImgBlockList[arrIdx] - 1;
-                int index3 = 3 * index;
-                float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
-                float rad = cuConstRendererParams.radius[index];
-                shadePixel(index, pixelCenterNorm, p, red_pixel, green_pixel, blue_pixel, alpha_pixel);
+    if(sharedCirclePairs<sharedSize)
+       data_per_thread = (end_addr-start_addr + totalThreads-1)/totalThreads;
+    else{
+    //    printf(" OverHead Detected!!!!\n");
+       data_per_thread = (sharedSize+totalThreads-1)/totalThreads;
+       sharedDataOverhead = 1;
+    }
 
-             }
-             __syncthreads();
+        printf("HERE 1 %d %d\n", blockIdx.x, blockIdx.y);
+ 
 
-            
-             cuConstRendererParams.imageData[4 * (y * imageWidth + x)] = red_pixel;
-             cuConstRendererParams.imageData[4 * (y * imageWidth + x) + 1] = green_pixel;
-             cuConstRendererParams.imageData[4 * (y * imageWidth + x) + 2 ] = blue_pixel;
-             cuConstRendererParams.imageData[4 * (y * imageWidth + x) + 3 ] = alpha_pixel;
-    
+    for(int i=0; i < data_per_thread; i++ ){
+        printf("HERE 2 %d %d\n", blockIdx.x, blockIdx.y);
+      int tid = threadIdx.y * blockDim.y + threadIdx.x;
+      if(tid < sharedCirclePairs){
+         sharedData[i + data_per_thread * tid] = circleImgBlockList[start_addr + i + data_per_thread * tid];
+        // index1 = 3 * (sharedData[i + data_per_thread * tid]-1); 
+	    // sharedData1[i + data_per_thread * tid]  = *(float3*)(&cuConstRendererParams.position[index1]); 
+      }
+    }
+    __syncthreads();
+
+//        printf("HERE 3\n");
+        printf("HERE 3 %d %d\n", blockIdx.x, blockIdx.y);
+
+    if(sharedCirclePairs){
+        for(int tid_x = threadIdx.x ; tid_x < (imageWidth/gridDim.x); tid_x +=blockDim.x) {
+            for(int tid_y = threadIdx.y ; tid_y < (imageHeight/gridDim.y); tid_y +=blockDim.y) {
+
+                int x = blockIdx.x*(imageWidth/gridDim.x) + tid_x;
+                int y = blockIdx.y*(imageHeight/gridDim.y) + tid_y;
+                float red_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x))];
+                float green_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x)) + 1];
+                float blue_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x)) + 2];
+                float alpha_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x)) + 3]; 
+                float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(x) + 0.5f),
+                                                                 invHeight * (static_cast<float>(y) + 0.5f));
+                
+                //k*# of pixels, added with linear thread ID 
+                //Unrolled the k loop to avoid loop overhead
+                int index ;
+                for (int arrIdx = start_addr; arrIdx < end_addr; arrIdx++) {
+    if((blockIdx.x + blockIdx.y + threadIdx.x + threadIdx.y) == 0) {
+        printf("HERE 4\n");
+    }
+                    if(sharedDataOverhead && ((arrIdx-start_addr) >sharedSize))
+                        index = circleImgBlockList[arrIdx] - 1;
+                    else
+                        index = sharedData[arrIdx-start_addr] - 1;
+    if((blockIdx.x + blockIdx.y + threadIdx.x + threadIdx.y) == 0) {
+        printf("HERE 5\n");
+    }
+                    int index3 = 3 * index;
+                   // if(sharedDataOverhead && ((arrIdx-start_addr) >sharedSize))
+                       p = *(float3*)(&cuConstRendererParams.position[index3]);
+                   // else
+                   //    p = sharedData1[arrIdx-start_addr]; 
+                    //float rad = cuConstRendererParams.radius[index];
+                    shadePixel(index, pixelCenterNorm, p, red_pixel, green_pixel, blue_pixel, alpha_pixel);
+
+                 }
+                 __syncthreads();
+
+                
+                 cuConstRendererParams.imageData[4 * (y * imageWidth + x)] = red_pixel;
+                 cuConstRendererParams.imageData[4 * (y * imageWidth + x) + 1] = green_pixel;
+                 cuConstRendererParams.imageData[4 * (y * imageWidth + x) + 2 ] = blue_pixel;
+                 cuConstRendererParams.imageData[4 * (y * imageWidth + x) + 3 ] = alpha_pixel;
+        
+            }
         }
     }
 }
@@ -1083,9 +1138,9 @@ CudaRenderer::render() {
          deviceStartAddr = thrust::raw_pointer_cast(circleStartAddr.data());
          int *deviceImgBlockList = NULL;
          deviceImgBlockList = thrust::raw_pointer_cast(circleImgBlockList.data());
- 
-         int numPixelsPerBlock = blockDim.x * blockDim.y * 4;
-         kernelRenderCircles<<<gridDim3, blockDim3, numPixelsPerBlock*sizeof(float)>>>(deviceImgBlockList, deviceStartAddr);
+
+         //int numPixelsPerBlock = blockDim.x * blockDim.y * 4;
+         kernelRenderCircles<<<gridDim3, blockDim3>>>(deviceImgBlockList, deviceStartAddr);
          //kernelRenderCircles<<<gridDim3, blockDim3>>>(circleImgBlockList, deviceStartAddr);
          gpuErrchk(cudaDeviceSynchronize());
     }
