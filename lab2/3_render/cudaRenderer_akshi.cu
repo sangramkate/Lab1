@@ -340,6 +340,68 @@ __global__ void kernelAdvanceSnowflake() {
     *((float3*)velocityPtr) = velocity;
 }
 
+__device__ __inline__ void
+shadePixelSmallCircles(int circleIndex, float2 pixelCenter, float3 p, float4* imagePtr) {
+
+    float diffX = p.x - pixelCenter.x;
+    float diffY = p.y - pixelCenter.y;
+    float pixelDist = diffX * diffX + diffY * diffY;
+
+    float rad = cuConstRendererParams.radius[circleIndex];;
+    float maxDist = rad * rad;
+
+    // circle does not contribute to the image
+    if (pixelDist > maxDist)
+        return;
+
+    float3 rgb;
+    float alpha;
+
+    // there is a non-zero contribution.  Now compute the shading value
+
+    // This conditional is in the inner loop, but it evaluates the
+    // same direction for all threads so it's cost is not so
+    // bad. Attempting to hoist this conditional is not a required
+    // student optimization in Assignment 2
+    if (cuConstRendererParams.sceneName == SNOWFLAKES || cuConstRendererParams.sceneName == SNOWFLAKES_SINGLE_FRAME) {
+
+        const float kCircleMaxAlpha = .5f;
+        const float falloffScale = 4.f;
+
+        float normPixelDist = sqrt(pixelDist) / rad;
+        rgb = lookupColor(normPixelDist);
+
+        float maxAlpha = .6f + .4f * (1.f-p.z);
+        maxAlpha = kCircleMaxAlpha * fmaxf(fminf(maxAlpha, 1.f), 0.f); // kCircleMaxAlpha * clamped value
+        alpha = maxAlpha * exp(-1.f * falloffScale * normPixelDist * normPixelDist);
+
+    } else {
+        // simple: each circle has an assigned color
+        int index3 = 3 * circleIndex;
+        rgb = *(float3*)&(cuConstRendererParams.color[index3]);
+        alpha = .5f;
+    }
+
+    float oneMinusAlpha = 1.f - alpha;
+
+    // BEGIN SHOULD-BE-ATOMIC REGION
+    // global memory read
+
+    float4 existingColor = *imagePtr;
+    float4 newColor;
+    newColor.x = alpha * rgb.x + oneMinusAlpha * existingColor.x;
+    newColor.y = alpha * rgb.y + oneMinusAlpha * existingColor.y;
+    newColor.z = alpha * rgb.z + oneMinusAlpha * existingColor.z;
+    newColor.w = alpha + existingColor.w;
+
+    // global memory write
+    *imagePtr = newColor;
+
+    // END SHOULD-BE-ATOMIC REGION
+}
+
+
+
 // shadePixel -- (CUDA device code)
 //
 // given a pixel and a circle, determines the contribution to the
@@ -470,61 +532,39 @@ shadePixel(int circleIndex, float2 pixelCenter, float3 p, float& redPix, float& 
 */
 
 __global__ void kernelRenderCircles(int* circleImgBlockList, int* circleStartAddr) {
-    const int sharedSize = 1;
-    //const int sharedSize2 = 1024 * 3;
+    const int sharedSize = 4096;
     const int totalThreads = blockDim.x * blockDim.y;
      __shared__ int sharedData[sharedSize];
-     //__shared__ float3 sharedData1[sharedSize];
     float invWidth = cuConstRendererParams.invWidth;
     float invHeight = cuConstRendererParams.invHeight;
     int imageWidth = cuConstRendererParams.imageWidth;
     int imageHeight = cuConstRendererParams.imageHeight;
 
-//    if((blockIdx.x + blockIdx.y) == 0) {
-        //printf("HERE 2 %d %d\n", blockIdx.x, blockIdx.y);
- //   }
-
     int start_addr = circleStartAddr[blockIdx.y*gridDim.x + blockIdx.x];
     int end_addr= circleStartAddr[blockIdx.y*gridDim.x + blockIdx.x + 1];
     int sharedCirclePairs = end_addr - start_addr;
- 
+  
     int data_per_thread;
     int sharedDataOverhead = 0;
-    int index1;
-    float3 p;
-
 
     if(sharedCirclePairs<sharedSize)
        data_per_thread = (end_addr-start_addr + totalThreads-1)/totalThreads;
     else{
-    //    printf(" OverHead Detected!!!!\n");
        data_per_thread = (sharedSize+totalThreads-1)/totalThreads;
        sharedDataOverhead = 1;
     }
-
-        printf("HERE 1 %d %d\n", blockIdx.x, blockIdx.y);
- 
-
     for(int i=0; i < data_per_thread; i++ ){
-        printf("HERE 2 %d %d\n", blockIdx.x, blockIdx.y);
       int tid = threadIdx.y * blockDim.y + threadIdx.x;
       if(tid < sharedCirclePairs){
-         sharedData[i + data_per_thread * tid] = circleImgBlockList[start_addr + i + data_per_thread * tid];
-        // index1 = 3 * (sharedData[i + data_per_thread * tid]-1); 
-	    // sharedData1[i + data_per_thread * tid]  = *(float3*)(&cuConstRendererParams.position[index1]); 
+         sharedData[i + data_per_thread * tid] = circleImgBlockList[start_addr + i + data_per_thread * tid]; 
       }
     }
     __syncthreads();
 
-//        printf("HERE 3\n");
-        printf("HERE 3 %d %d\n", blockIdx.x, blockIdx.y);
-
     if(sharedCirclePairs){
-        for(int tid_x = threadIdx.x ; tid_x < (imageWidth/gridDim.x); tid_x +=blockDim.x) {
-            for(int tid_y = threadIdx.y ; tid_y < (imageHeight/gridDim.y); tid_y +=blockDim.y) {
 
-                int x = blockIdx.x*(imageWidth/gridDim.x) + tid_x;
-                int y = blockIdx.y*(imageHeight/gridDim.y) + tid_y;
+                int x = blockIdx.x*(imageWidth/gridDim.x) + threadIdx.x + 16*(blockIdx.z % 4);
+                int y = blockIdx.y*(imageHeight/gridDim.y) + threadIdx.y + 16*(blockIdx.z / 4);
                 float red_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x))];
                 float green_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x)) + 1];
                 float blue_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x)) + 2];
@@ -536,21 +576,12 @@ __global__ void kernelRenderCircles(int* circleImgBlockList, int* circleStartAdd
                 //Unrolled the k loop to avoid loop overhead
                 int index ;
                 for (int arrIdx = start_addr; arrIdx < end_addr; arrIdx++) {
-    if((blockIdx.x + blockIdx.y + threadIdx.x + threadIdx.y) == 0) {
-        printf("HERE 4\n");
-    }
-                    if(sharedDataOverhead && ((arrIdx-start_addr) >sharedSize))
+                    if(sharedDataOverhead && ((arrIdx - start_addr) >sharedSize))
                         index = circleImgBlockList[arrIdx] - 1;
                     else
                         index = sharedData[arrIdx-start_addr] - 1;
-    if((blockIdx.x + blockIdx.y + threadIdx.x + threadIdx.y) == 0) {
-        printf("HERE 5\n");
-    }
                     int index3 = 3 * index;
-                   // if(sharedDataOverhead && ((arrIdx-start_addr) >sharedSize))
-                       p = *(float3*)(&cuConstRendererParams.position[index3]);
-                   // else
-                   //    p = sharedData1[arrIdx-start_addr]; 
+                    float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
                     //float rad = cuConstRendererParams.radius[index];
                     shadePixel(index, pixelCenterNorm, p, red_pixel, green_pixel, blue_pixel, alpha_pixel);
 
@@ -564,44 +595,8 @@ __global__ void kernelRenderCircles(int* circleImgBlockList, int* circleStartAdd
                  cuConstRendererParams.imageData[4 * (y * imageWidth + x) + 3 ] = alpha_pixel;
         
             }
-        }
-    }
 }
 
-
-/*__global__ void kernelRenderCircles(int* circleImgBlockList, int* circleStartAddr) {
-    float invWidth = cuConstRendererParams.invWidth;
-    float invHeight = cuConstRendererParams.invHeight;
-    int imageWidth = cuConstRendererParams.imageWidth;
-    int imageHeight = cuConstRendererParams.imageHeight;
-
-    int start_addr = circleStartAddr[blockIdx.y*gridDim.x + blockIdx.x];
-    int end_addr= circleStartAddr[blockIdx.y*gridDim.x + blockIdx.x + 1];
-
-    for (int arrIdx = start_addr; arrIdx < end_addr; arrIdx++) {
-
-        int index = circleImgBlockList[arrIdx]-1;
-        //if(threadIdx.x + threadIdx.y == 0) {
-        //    printf("blockid = %d, index = %d\n", (blockIdx.y*gridDim.x + blockIdx.x), index);
-        //}
-        int index3 = 3 * index;
-        float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
-    //    const unsigned int offset = blockIdx.x*blockDim.x + threadIdx.x;
-
-        // BlockDim = 256 x1, gridDim = 4x4
-
-        for(int tid_x = threadIdx.x ; tid_x < (imageWidth/gridDim.x); tid_x +=blockDim.x) {
-            for(int tid_y = threadIdx.y ; tid_y < (imageHeight/gridDim.y); tid_y +=blockDim.y) {
-                int x = blockIdx.x*(imageWidth/gridDim.x) + tid_x;  
-                int y = blockIdx.y*(imageHeight/gridDim.y) + tid_y;  
-                float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * (y * imageWidth + x)]);
-                float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(x) + 0.5f),
-                                                             invHeight * (static_cast<float>(y) + 0.5f));
-                shadePixel(index, pixelCenterNorm, p, imgPtr);
-            }
-        }
-    }
-}*/
 ////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -917,53 +912,27 @@ struct linear_index_to_row_index : public thrust::unary_function<T,T>
 };
 
 
-__global__ void kernelRenderSmallCircles() {
-    float invWidth = cuConstRendererParams.invWidth;
-    float invHeight = cuConstRendererParams.invHeight;
-    int imageWidth = cuConstRendererParams.imageWidth;
-    int imageHeight = cuConstRendererParams.imageHeight;
+__global__ void kernelRenderSmallCircles(int index, int imageWidth, int imageHeight, int screenMinX, int screenMinY, int screenMaxX, int screenMaxY) {
 
-    int x = blockIdx.x*(imageWidth/gridDim.x) + threadIdx.x;
-    int y = blockIdx.y*(imageHeight/gridDim.y) + threadIdx.y;
+    float invWidth = 1.f / imageWidth;
+    float invHeight = 1.f / imageHeight;
+    int index3 = 3 * index;
+    float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
 
-   float red_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x))];
-   float green_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x)) + 1];
-   float blue_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x)) + 2];
-   float alpha_pixel = cuConstRendererParams.imageData[(4 * (y * imageWidth + x)) + 3]; 
-    
-
-    //TODO: is it converted to registers??  ---> I think its best if I pass by reference?? 
-    //float4 imgPtr = *(float4*)(&cuConstRendererParams.imageData[4 * (y * imageWidth + x)]);
-    __syncthreads(); //to make sure this shared memory is visible to everyone --> can remove this as the syncthreads below will take care of it
-
-    for (int index = 0; index < cuConstRendererParams.numCircles; index++) {
-        int index3 = 3 * index;
-        float3 p = *(float3*)(&cuConstRendererParams.position[index3]);
-        float rad = cuConstRendererParams.radius[index];
-        // BlockDim = 256 x1, gridDim = 4x4
-
-        //__shared__ int circleInBox;
-        //if(threadIdx.x + threadIdx.y == 0) {
-            int circleInBox = circleInBoxConservative(p.x, p.y, rad, 
-                static_cast<float>(1.f/gridDim.x)*blockIdx.x, static_cast<float>(1.f/gridDim.x)*(blockIdx.x+1), 
-                static_cast<float>(1.f/gridDim.y)*(blockIdx.y+1), static_cast<float>(1.f/gridDim.y)*(blockIdx.y));
-        //}
-
-        //__syncthreads(); //TODO: is this even needed? --- but why? 
-        if(circleInBox == 0) { continue; }
-
-        float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(x) + 0.5f),
-                                                         invHeight * (static_cast<float>(y) + 0.5f));
-        shadePixel(index, pixelCenterNorm, p, red_pixel, green_pixel, blue_pixel, alpha_pixel);
-
-     }
-     __syncthreads();
-
-     cuConstRendererParams.imageData[4 * (y * imageWidth + x)] = red_pixel;
-     cuConstRendererParams.imageData[4 * (y * imageWidth + x) + 1] = green_pixel;
-     cuConstRendererParams.imageData[4 * (y * imageWidth + x) + 2 ] = blue_pixel;
-     cuConstRendererParams.imageData[4 * (y * imageWidth + x) + 3 ] = alpha_pixel;
-    
+    int x = blockIdx.x*blockDim.x + threadIdx.x + screenMinX;
+    int y = blockIdx.y*blockDim.y + threadIdx.y + screenMinY;
+    if(x >= screenMaxX) return;
+    if(y >= screenMaxY) return;
+    /*
+    const unsigned int offset = blockIdx.x*blockDim.x + threadIdx.x;
+    if(offset >= (screenMaxX - screenMinX) * (screenMaxY - screenMinY)) return;
+    int x = (offset % (screenMaxX - screenMinX)) + screenMinX;
+    int y = (offset / (screenMaxX - screenMinX)) + screenMinY;
+    */
+    float4* imgPtr = (float4*)(&cuConstRendererParams.imageData[4 * (y * imageWidth + x)]);
+    float2 pixelCenterNorm = make_float2(invWidth * (static_cast<float>(x) + 0.5f),
+                                                 invHeight * (static_cast<float>(y) + 0.5f));
+    shadePixelSmallCircles(index, pixelCenterNorm, p, imgPtr);
 }
 
 void
@@ -978,57 +947,41 @@ CudaRenderer::render() {
     // screen coordinates, so it's clamped to the edges of the screen.
     
     short imageWidth = image->width;
-    /*
-    short imageHeight = image->height;
-    dim3 blockDim(16, 16);
-   // dim3 gridDim((numPixels  + blockDim.x - 1) / blockDim.x);
-   //int numPixels = imageWidth * imageHeight;
-    int temp1 = (imageWidth + blockDim.x - 1) / blockDim.x;
-    int temp2 = (imageHeight + blockDim.y - 1) / blockDim.y;
-    dim3 gridDim(temp1,temp2); //dividing it into block -- each block working on a portion of image
-
-    //NumPixels per block
-    //int numPixelsPerBlock = blockDim.x * blockDim.y * 4;
-    */
-    
     int* circleImgBlockArray = NULL;
     int* circleImgBlockId = NULL;
     //printf("NumCircles = %d\n",numCircles);
 
    if (numCircles < 5) {
+      for (int i = 0; i < numCircles; i++) {
+       // read p sition and radius
+        int index3 = 3 * i;
+        float3 p = *(float3*)(&position[index3]);
+        float  rad = radius[i];
 
-    // compute the bounding box of the circle. The bound is in integer
-    // screen coordinates, so it's clamped to the edges of the screen.
-    short imageWidth = image->width;
-    short imageHeight = image->height;
-    
-    dim3 blockDim(16, 16);
-   // dim3 gridDim((numPixels  + blockDim.x - 1) / blockDim.x);
-   //int numPixels = imageWidth * imageHeight;
-    int temp1 = (imageWidth + blockDim.x - 1) / blockDim.x;
-    int temp2 = (imageHeight + blockDim.y - 1) / blockDim.y;
-    dim3 gridDim(temp1,temp2); //dividing it into block -- each block working on a portion of image
+        // compute the bounding box of the circle. The bound is in integer
+        // screen coordinates, so it's clamped to the edges of the screen.
+        short imageWidth = image->width;
+        short imageHeight = image->height;
+        short minX = static_cast<short>(imageWidth * (p.x - rad));
+        short maxX = static_cast<short>(imageWidth * (p.x + rad)) + 1;
+        short minY = static_cast<short>(imageHeight * (p.y - rad));
+        short maxY = static_cast<short>(imageHeight * (p.y + rad)) + 1;
 
-    //NumPixels per block
-    //int numPixelsPerBlock = blockDim.x * blockDim.y * 4;
+        // a bunch of clamps.  Is there a CUDA built-in for this?
+        short screenMinX = (minX > 0) ? ((minX < imageWidth) ? minX : imageWidth) : 0;
+        short screenMaxX = (maxX > 0) ? ((maxX < imageWidth) ? maxX : imageWidth) : 0;
+        short screenMinY = (minY > 0) ? ((minY < imageHeight) ? minY : imageHeight) : 0;
+        short screenMaxY = (maxY > 0) ? ((maxY < imageHeight) ? maxY : imageHeight) : 0;
 
-    //TODO: why does perf tank with more kernels --- what's the trade off? 
-    kernelRenderSmallCircles<<<gridDim, blockDim>>>();
-    gpuErrchk(cudaDeviceSynchronize());
+        dim3 blockDim(16, 16);
+        dim3 gridDim(((screenMaxX - screenMinX) + blockDim.x - 1) / blockDim.x, ((screenMaxY - screenMinY) + blockDim.y - 1) / blockDim.y);
 
+        kernelRenderSmallCircles<<<gridDim, blockDim>>>(i, imageWidth, imageHeight, screenMinX, screenMinY, screenMaxX, screenMaxY);
+        gpuErrchk(cudaDeviceSynchronize());
+      }
    } else {
          int imgBlockNum =16;
-         //if(numCircles < 5) {
-         //    imgBlockNum = 1;
-         //} else if(numCircles < 100) {
-         //    imgBlockNum = 2;
-         //} else if(numCircles < 1000) {
-         //    imgBlockNum = 4;
-         //} else if (numCircles < 10000) {
-         //    imgBlockNum = 8;
-         //} else {
-         //    imgBlockNum = 32;
-         //}
+
          int numImgBlocks = imgBlockNum * imgBlockNum;
          int numElements = numCircles * imgBlockNum * imgBlockNum;  
 
@@ -1044,13 +997,6 @@ CudaRenderer::render() {
          /*Convert the 2D circle block array into 1 D array by removing 0 values  */
          thrust::device_ptr<int> thrust_arr = thrust::device_pointer_cast(circleImgBlockArray); 
          thrust::device_ptr<int> thrust_circleid = thrust::device_pointer_cast(circleImgBlockId); 
-         //thrust::device_vector<int> prefix_sum(num_img_blocks);
-
-         //Gets the number circles per each block
-         //This is used to generate the starting address of each array
-         //int *reduced = NULL;
-         //reduced = (int*) malloc(sizeof(int)*(numImgBlocks+1));
-
          
          // allocate storage for rowu sums and indices
          thrust::device_vector<int> row_sums(numImgBlocks+1);
@@ -1066,82 +1012,38 @@ CudaRenderer::render() {
           thrust::equal_to<int>(),
           thrust::plus<int>());
          
-         
          thrust::fill(thrust::device, row_sums.end() - 1, row_sums.end(), 0);
          //thrust::copy(row_sums.begin(), row_sums.end(), std::ostream_iterator<int>(std::cout, " "));
-         //TODO CHECK: Are these matching? If yes, what is more performant? 
-         
-         //for(int i=0; i< numImgBlocks; i++) {
-            // printf("Row_sums[%d] = %d\n", i, row_sums[i]);
-         //}
-        /* 
-         for(int i=0; i<numImgBlocks; i++) {
-             reduced[i] = thrust::reduce(thrust_arr+numCircles*i, thrust_arr + numCircles*(i+1));
-            // printf("Reduced[%d] %d\n", i, reduced[i]);
-         }
-         reduced[numImgBlocks] = 0;
-
-         //Run exclusive scan to get starting address of each array
-         thrust::device_vector<int> circleStartAddr(numImgBlocks+1);
-         
-         thrust::device_ptr<int> reduced_gpu = thrust::device_malloc<int>(numImgBlocks+1);
-         cudaMemcpy(reduced_gpu.get(), reduced, (numImgBlocks + 1) * sizeof(int), 
-                    cudaMemcpyHostToDevice);
-         thrust::exclusive_scan(reduced_gpu, reduced_gpu+numImgBlocks+1, circleStartAddr.begin());
-         //thrust::copy(circleStartAddr.begin(), circleStartAddr.end(), std::ostream_iterator<float>(std::cout, " "));
-         */
          
          thrust::device_vector<int> circleStartAddr(numImgBlocks+1);
          thrust::exclusive_scan(row_sums.begin(), row_sums.end(), circleStartAddr.begin());
          //thrust::copy(circleStartAddr.begin(), circleStartAddr.end(), std::ostream_iterator<float>(std::cout, " "));
 
-
-         //TODO CHECK: get a sum of reduced and compare that with num pairs to confirm its all correct!
-         //TODO CHECK: which one is more performant? -- choose that 
-         int num_pairs = thrust::reduce(thrust_arr, thrust_arr + numElements);
-         //int num_pairs = circleStartAddr[numImgBlocks];
+         //int num_pairs = thrust::reduce(thrust_arr, thrust_arr + numElements);
+         int num_pairs = circleStartAddr[numImgBlocks];
          //printf("SUM = %d\n", num_pairs);
 
-         cudaFree(circleImgBlockArray);
-         //thrust::device_vector<int> prefix_sum(num_img_blocks);
-
-         //kernelRenderCircles<<<gridDim, blockDim>>>();
-         //  gpuErrchk(cudaDeviceSynchronize());
+         //cudaFree(circleImgBlockArray);
 
          //allocate the right size of array
          //This array will be traversed by each block -- by using starting address from circleStartAddr
          thrust::device_vector<int> circleImgBlockList(num_pairs);
          thrust::copy_if(thrust_circleid, thrust_circleid + numElements, circleImgBlockList.begin(), is_not_zero<int>());
-         cudaFree(circleImgBlockId);
+         //cudaFree(circleImgBlockId);
 
          //thrust::copy(circleImgBlockList.begin(), circleImgBlockList.end(), std::ostream_iterator<float>(std::cout, " "));
-         //TODO: can use cuda streams to parallelize these I think...
-         /*
-         int* refCircleImgArray = NULL;
-         cudaMalloc(&refCircleImgArray, sizeof(int) * numCircles * imgBlockNum * imgBlockNum);
-         dim3 gridDim2(imgBlockNum, imgBlockNum);
-         getRefCircleArray<<<gridDim2, 1>>>(refCircleImgArray);
-         gpuErrchk(cudaDeviceSynchronize());
-         compare_array<<<1,1>>>(numCircles * imgBlockNum * imgBlockNum, refCircleImgArray, circleImgBlockArray);
-         */
 
-         //print_kernel<<<1,1>>>(numCircles * imgBlockNum * imgBlockNum, circleImgBlockArray);
 
-         //TODO: Need to free all these data strctures that I am creating!!
-
-         dim3 gridDim3(imgBlockNum, imgBlockNum);
+         dim3 gridDim3(imgBlockNum, imgBlockNum,16);
          dim3 blockDim3(16, 16);
-         //TODO: convert to shared memroy versiion??
-         //kernelRenderCircles<<<gridDim, blockDim,numPixelsPerBlock*sizeof(float)>>>(imageWidth, imageHeight);
          
          int *deviceStartAddr = NULL;
          deviceStartAddr = thrust::raw_pointer_cast(circleStartAddr.data());
          int *deviceImgBlockList = NULL;
          deviceImgBlockList = thrust::raw_pointer_cast(circleImgBlockList.data());
-
+ 
          //int numPixelsPerBlock = blockDim.x * blockDim.y * 4;
          kernelRenderCircles<<<gridDim3, blockDim3>>>(deviceImgBlockList, deviceStartAddr);
-         //kernelRenderCircles<<<gridDim3, blockDim3>>>(circleImgBlockList, deviceStartAddr);
          gpuErrchk(cudaDeviceSynchronize());
     }
 }
