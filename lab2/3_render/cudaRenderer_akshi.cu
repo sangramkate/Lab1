@@ -538,8 +538,6 @@ __global__ void kernelRenderCircles(int* circleImgBlockList, int* circleStartAdd
                     shadePixel(index, pixelCenterNorm, p, red_pixel, green_pixel, blue_pixel, alpha_pixel);
 
                  }
-                 __syncthreads();
-
                 
                  cuConstRendererParams.imageData[4 * (y * imageWidth + x)] = red_pixel;
                  cuConstRendererParams.imageData[4 * (y * imageWidth + x) + 1] = green_pixel;
@@ -929,7 +927,7 @@ CudaRenderer::render() {
         dim3 gridDim(((screenMaxX - screenMinX) + blockDim.x - 1) / blockDim.x, ((screenMaxY - screenMinY) + blockDim.y - 1) / blockDim.y);
 
         kernelRenderSmallCircles<<<gridDim, blockDim>>>(i, imageWidth, imageHeight, screenMinX, screenMinY, screenMaxX, screenMaxY);
-        gpuErrchk(cudaDeviceSynchronize());
+        //gpuErrchk(cudaDeviceSynchronize());
       }
    } else {
          int imgBlockNum = 16;
@@ -996,7 +994,7 @@ CudaRenderer::render() {
  
          //int numPixelsPerBlock = blockDim.x * blockDim.y * 4;
          kernelRenderCircles<<<gridDim3, blockDim3>>>(deviceImgBlockList, deviceStartAddr);
-         gpuErrchk(cudaDeviceSynchronize());
+         //gpuErrchk(cudaDeviceSynchronize());
     }
 }
 
