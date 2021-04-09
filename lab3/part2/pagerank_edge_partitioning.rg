@@ -206,8 +206,8 @@ task toplevel()
     num_iterations += 1
     var l2_norm = 0.0
     
-    for part in pages_src_part.colors do
-      calculate_delta(pages_src_part[part], config.damp)
+    for part in pages_dest_part_disjoint.colors do
+      calculate_delta(pages_dest_part_disjoint[part], config.damp)
     end
 
    -- Rank is updated only for destination pages -- keeping it disjoint
