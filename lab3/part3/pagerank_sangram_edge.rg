@@ -9,8 +9,7 @@ fspace Page {
   rank               : double,
   num_outgoing_edges : double,
   old_rank           : double,
-  delta              : double,
-  delta_done         : int
+  delta              : double
 }
 
 fspace Link(r : region(Page)) {
@@ -45,7 +44,6 @@ do
     page.delta= 0
     page.old_rank= 0
     page.num_outgoing_edges = 0
-    page.delta_done = 0
   end
 
   var f = c.fopen(filename, "rb")
@@ -91,29 +89,11 @@ do
     if page.num_outgoing_edges > 0 then
       page.delta = damp*(page.rank/page.num_outgoing_edges)
       -- c.printf("delta = %f\n", page.delta)
-    else        
-      page.delta = 0
     end
+    page.old_rank = page.rank
+    page.rank = (1-damp)/num_pages
   end
 end 
-
-task init_rank(r_dest_pages: region(Page),
-                      damp      : double,
-                      num_pages : uint64)
-where 
-  reads writes (r_dest_pages.rank),
-  reads writes (r_dest_pages.delta_done),
-  reads writes (r_dest_pages.old_rank) -- TODO: convert it back to writes
-do
--- Need to update rank only for dest pages 
-  for page in r_dest_pages do
-    if page.delta_done == 0 then
-        page.old_rank = page.rank
-        page.rank = (1-damp)/num_pages
-        page.delta_done = 1
-    end
-  end
-end
 
 
 task update_rank(r_pages: region(Page),
@@ -236,40 +216,9 @@ task toplevel()
     num_iterations += 1
     var l2_norm = 0.0
     
-    for part in src_private_nodes.colors do
-        calculate_delta(src_private_nodes[part], config.damp, config.num_pages)
-    end
-     
-    --c.printf("private delta calculations done : %d \n", num_iterations)
-   
-    
-    for part in src_shared_nodes.colors do
-        calculate_delta(src_shared_nodes[part], config.damp, config.num_pages)
-    end
-    
-    --c.printf("shared delta calculations done \n")
-    
-    for part in pages_union_private.colors do
-        init_rank(pages_union_private[part], config.damp, config.num_pages)
-    end
-
-    for part in pages_union_shared.colors do
-        init_rank(pages_union_shared[part], config.damp, config.num_pages)
-    end
-
- --   for page in r_pages do
- --           -- c.printf("Page%d rank = %f\n", page, page.rank)
- --           c.printf("Page%d delta= %f\n", page, page.delta)
- --   end
- --       
-
- --    -- If a dest node is present in 2 parts, it should be processed twice
- --   for part in dest_shared_links.colors do
- --       c.printf("====\n")
- --       for link in dest_shared_links[part] do
- --           c.printf("edge: %d -> %d\n", link.src_page, link.dest_page)
- --       end
- --   end
+    for part in pages_part_disjoint.colors do
+        calculate_delta(pages_part_disjoint[part], config.damp, config.num_pages)
+    end 
 
     for part in dest_private_links.colors do
       update_rank(dest_private_nodes[part], dest_private_links[part])
@@ -295,7 +244,7 @@ task toplevel()
     if(c.sqrt(l2_norm) <= config.error_bound) then 
       converged = true 
     end
-    fill(r_pages.delta_done, 0)
+
     if(num_iterations >= config.max_iterations) then
         break
     end
