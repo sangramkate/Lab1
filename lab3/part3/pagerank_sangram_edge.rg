@@ -9,7 +9,8 @@ fspace Page {
   rank               : double,
   num_outgoing_edges : double,
   old_rank           : double,
-  delta              : double;
+  delta              : double,
+  delta_done         : int
 }
 
 fspace Link(r : region(Page)) {
@@ -44,6 +45,7 @@ do
     page.delta= 0
     page.old_rank= 0
     page.num_outgoing_edges = 0
+    page.delta_done = 0
   end
 
   var f = c.fopen(filename, "rb")
@@ -75,8 +77,7 @@ end
 
 task calculate_delta(r_src_pages: region(Page), 
                       damp      : double,
-                      num_pages : uint64,
-                      val : uint64)
+                      num_pages : uint64)
 where 
   reads (r_src_pages.num_outgoing_edges),
   writes (r_src_pages.delta),
@@ -87,16 +88,13 @@ do
   for page in r_src_pages do
     -- Calculate the contribution of this node to the output 
     page.delta = 0
-    page.old_rank = page.rank
     if page.num_outgoing_edges > 0 then
       page.delta = damp*(page.rank/page.num_outgoing_edges)
       -- c.printf("delta = %f\n", page.delta)
     else        
       page.delta = 0
     end
-    page.rank = (1-damp)/num_pages
   end
-  c.printf("Val: %d\n",val)
 end 
 
 task init_rank(r_dest_pages: region(Page),
@@ -104,14 +102,16 @@ task init_rank(r_dest_pages: region(Page),
                       num_pages : uint64)
 where 
   reads writes (r_dest_pages.rank),
+  reads writes (r_dest_pages.delta_done),
   reads writes (r_dest_pages.old_rank) -- TODO: convert it back to writes
 do
 -- Need to update rank only for dest pages 
   for page in r_dest_pages do
-    page.old_rank = page.rank
-    -- TODO: might need to update rank in a different kernel -- otherwise src page might end up reading newer rank? 
-    -- Alternatively, Is there a way to design partitions to make them disjoin to avoid this issue? 
-    page.rank = (1-damp)/num_pages
+    if page.delta_done == 0 then
+        page.old_rank = page.rank
+        page.rank = (1-damp)/num_pages
+        page.delta_done = 1
+    end
   end
 end
 
@@ -189,9 +189,17 @@ task toplevel()
   -- this is the code for shared edge calculations for src nodes
   var extended_link_part = preimage(r_links,pages_src_part,r_links.src_page)
   var extra_link_part = extended_link_part - links_part
+  --var links_union = union(extra_link_part)
   var src_shared_nodes = image(r_pages, extra_link_part, r_links.src_page)
   var src_private_nodes = pages_src_part - src_shared_nodes
   
+  -- this is the code for shared edge calculations for dest nodes
+  var extended_link_part2 = preimage(r_links, pages_dest_part, r_links.dest_page)
+  var extra_link_part2 = extended_link_part2 - links_part
+  var dest_shared_nodes = image(r_pages, extra_link_part2, r_links.dest_page)
+  var dest_private_nodes = pages_dest_part - dest_shared_nodes 
+  var dest_shared_links = preimage(r_links, dest_shared_nodes, r_links.dest_page) & links_part
+  var dest_private_links = preimage(r_links, dest_private_nodes, r_links.dest_page)
 
 -- TODO: this seems like a hack : how to actually create partitions ? 
   -- var pages_part_disjoint = image(disjoint, complete, r_pages, links_part, r_links.dest_page)
@@ -199,21 +207,23 @@ task toplevel()
 -- TODO: is the number of src and dest partitions same? -- and is it same as # of link partitions  --- or do I need to use union?
 
   var pages_union = (pages_src_part | pages_dest_part)
+  var pages_union_private = (dest_private_nodes | src_private_nodes)
+  var pages_union_shared = (dest_shared_nodes | src_shared_nodes)
 
 
- --   for part in links_part.colors do
- --       c.printf("========\n")
- --       for link in links_part[part] do
- --           c.printf("link : %d -> %d\n", link.src_page, link.dest_page)
- --       end
- --   end
-
- --   for part in pages_part_disjoint.colors do
- --       c.printf("========\n")
- --       for page in pages_part_disjoint[part] do
- --           c.printf("dest: %d\n", page)
- --       end
- --   end
+-- for part in links_part.colors do
+--     c.printf("========\n")
+--     for link in links_part[part] do
+--         c.printf("link : %d -> %d\n", link.src_page, link.dest_page)
+--     end
+-- end
+--
+-- for part in pages_dest_part.colors do
+--     c.printf("========\n")
+--     for page in pages_dest_part[part] do
+--         c.printf("dest: %d\n", page)
+--     end
+-- end
 
  var error_indices = ispace(int1d, config.parallelism)
   var error_region = region(error_indices, error_field)
@@ -227,24 +237,52 @@ task toplevel()
     var l2_norm = 0.0
     
     for part in src_private_nodes.colors do
-    -- calculate_delta(pages_part_disjoint[part], config.damp, config.num_pages)
-     calculate_delta(src_private_nodes[part], config.damp, config.num_pages,part)
+        calculate_delta(src_private_nodes[part], config.damp, config.num_pages)
     end
      
-    c.printf("private delta calculations done : %d \n", num_iterations)
+    --c.printf("private delta calculations done : %d \n", num_iterations)
    
     
     for part in src_shared_nodes.colors do
-    -- calculate_delta(pages_part_disjoint[part], config.damp, config.num_pages)
-     calculate_delta(src_shared_nodes[part], config.damp, config.num_pages,part+10)
+        calculate_delta(src_shared_nodes[part], config.damp, config.num_pages)
     end
     
-    c.printf("shared delta calculations done \n")
+    --c.printf("shared delta calculations done \n")
     
-     -- If a dest node is present in 2 parts, it should be processed twice
-    for part in links_part.colors do
-      update_rank(pages_dest_part[part], links_part[part])
+    for part in pages_union_private.colors do
+        init_rank(pages_union_private[part], config.damp, config.num_pages)
     end
+
+    for part in pages_union_shared.colors do
+        init_rank(pages_union_shared[part], config.damp, config.num_pages)
+    end
+
+ --   for page in r_pages do
+ --           -- c.printf("Page%d rank = %f\n", page, page.rank)
+ --           c.printf("Page%d delta= %f\n", page, page.delta)
+ --   end
+ --       
+
+ --    -- If a dest node is present in 2 parts, it should be processed twice
+ --   for part in dest_shared_links.colors do
+ --       c.printf("====\n")
+ --       for link in dest_shared_links[part] do
+ --           c.printf("edge: %d -> %d\n", link.src_page, link.dest_page)
+ --       end
+ --   end
+
+    for part in dest_private_links.colors do
+      update_rank(dest_private_nodes[part], dest_private_links[part])
+    end
+    
+
+    for part in dest_shared_links.colors do
+      update_rank(dest_shared_nodes[part], dest_shared_links[part])
+    end
+
+    --for page in r_pages do
+    --    c.printf("rank = %11.4f\n",page.rank)
+    --end
     -- We don't want a diff to be counted twice hence disjoint
     for part in pages_part_disjoint.colors do
       error_region[part].error = update_diff(pages_part_disjoint[part])
@@ -257,8 +295,8 @@ task toplevel()
     if(c.sqrt(l2_norm) <= config.error_bound) then 
       converged = true 
     end
-    --if(num_iterations >= config.max_iterations) then
-    if(num_iterations >= 4) then
+    fill(r_pages.delta_done, 0)
+    if(num_iterations >= config.max_iterations) then
         break
     end
   end
